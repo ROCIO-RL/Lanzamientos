@@ -3,6 +3,8 @@ import pandas as pd
 import os
 import subprocess
 import altair as alt
+import subprocess
+import sys
 
 marcas_porcentajes = {
     'AFFAIR': {'Benavides': 0.00, 'Chedraui': 1.00, 'Soriana': 0.00, 'Walmart': 0.00},
@@ -95,7 +97,7 @@ if st.button("Ejecutar Modelo"):
         st.error("No se encuentra el archivo LAYOUTPRUEBAS.xlsx. Guárdalo primero.")
     else:
         try:
-            result = subprocess.run(['python', 'MODELO.py'], check=True, capture_output=True, text=True)
+            result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
             st.success("Modelo ejecutado correctamente.")
             st.text(result.stdout)
         except subprocess.CalledProcessError as e:
