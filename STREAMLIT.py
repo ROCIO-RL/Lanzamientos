@@ -237,7 +237,7 @@ if st.session_state.graficar:
                 # Ejecutar el modelo
                 df_layout_actualizado.to_excel("LAYOUTPRUEBAS.xlsx", sheet_name='Datos',index=False)
                 st.success("Archivo guardado exitosamente como LAYOUTPRUEBAS.xlsx")
-                result = subprocess.run(['python', 'MODELO.py'], check=True, capture_output=True, text=True)
+                result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
                 st.success("Modelo ejecutado correctamente.")
                 st.text(result.stdout)
             except Exception as e:
