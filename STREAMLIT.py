@@ -315,7 +315,12 @@ if st.session_state.graficar:
 
         for alerta in alertas:
             st.markdown(alerta)
+            
+    if "mostrar_resumen" not in st.session_state:
+      st.session_state.mostrar_resumen = False
 
+    if st.button("Mostrar Resumen"):
+        st.session_state.mostrar_resumen = True
     # Mostrar solo si el estado está activado
     if st.session_state.mostrar_resumen:
         st.subheader("Selecciona variable a visualizar")
