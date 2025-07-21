@@ -168,7 +168,7 @@ if st.session_state.graficar:
                     df_pred_stack.loc[mask, 'Precio'] = df_plot['Precio'].values
                     df_pred_stack.loc[mask, 'Monto'] = df_plot['Precio'].values * df_pred_stack.loc[mask, 'Unidades']
                     df_pred_stack.loc[mask, 'Sucursales'] = df_plot[f'Sucursales {grupo}'].values
-                    #df_pred_stack.loc['Inventario'] = df_plot['Inventario'].values
+                df_pred_stack.loc['Inventario'] = df_plot['Inventario'].values
 
                 df_sellout = df_plot[['SemNumero', 'SELLOUT']].copy()
                 df_sellout = df_sellout.rename(columns={'SELLOUT': 'Unidades'})
