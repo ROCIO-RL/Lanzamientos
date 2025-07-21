@@ -316,60 +316,60 @@ if st.session_state.graficar:
         for alerta in alertas:
             st.markdown(alerta)
 
-        # Mostrar solo si el estado está activado
-        if st.session_state.mostrar_resumen:
-            st.subheader("Selecciona variable a visualizar")
+    # Mostrar solo si el estado está activado
+    if st.session_state.mostrar_resumen:
+        st.subheader("Selecciona variable a visualizar")
 
-            col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
 
-            if "metric_display" not in st.session_state:
+        if "metric_display" not in st.session_state:
+            st.session_state.metric_display = "GRPs"
+
+        with col1:
+            if st.button("Ventas"):
+                st.session_state.metric_display = "Ventas"
+
+        with col2:
+            if st.button("Inventario"):
+                st.session_state.metric_display = "Inventario"
+
+        with col3:
+            if st.button("GRPs"):
                 st.session_state.metric_display = "GRPs"
 
-            with col1:
-                if st.button("Ventas"):
-                    st.session_state.metric_display = "Ventas"
+        # Asignar variable
+        if st.session_state.metric_display == "Ventas":
+            valor = promedio_real if promedio_real > 0 else promedio_pred
+            rango_min = resumen_df[['SELLOUT', 'PREDICCION']].min().min()
+            rango_max = resumen_df[['SELLOUT', 'PREDICCION']].max().max()
+            titulo = "Ventas promedio"
 
-            with col2:
-                if st.button("Inventario"):
-                    st.session_state.metric_display = "Inventario"
+        elif st.session_state.metric_display == "Inventario":
+            valor = inventario_actual
+            rango_min = resumen_df['Inventario'].min()
+            rango_max = resumen_df['Inventario'].max()
+            titulo = "Inventario"
 
-            with col3:
-                if st.button("GRPs"):
-                    st.session_state.metric_display = "GRPs"
+        else:
+            valor = resumen_df['Grps'].iloc[-1]
+            rango_min = resumen_df['Grps'].min()
+            rango_max = resumen_df['Grps'].max()
+            titulo = "Nivel de GRPs"
 
-            # Asignar variable
-            if st.session_state.metric_display == "Ventas":
-                valor = promedio_real if promedio_real > 0 else promedio_pred
-                rango_min = resumen_df[['SELLOUT', 'PREDICCION']].min().min()
-                rango_max = resumen_df[['SELLOUT', 'PREDICCION']].max().max()
-                titulo = "Ventas promedio"
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=valor,
+            title={'text': titulo},
+            gauge={
+                'axis': {'range': [rango_min, rango_max]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [rango_min, (rango_min + rango_max)/2], 'color': "lightgray"},
+                    {'range': [(rango_min + rango_max)/2, rango_max], 'color': "lightgreen"},
+                ]
+            }
+        ))
 
-            elif st.session_state.metric_display == "Inventario":
-                valor = inventario_actual
-                rango_min = resumen_df['Inventario'].min()
-                rango_max = resumen_df['Inventario'].max()
-                titulo = "Inventario"
-
-            else:
-                valor = resumen_df['Grps'].iloc[-1]
-                rango_min = resumen_df['Grps'].min()
-                rango_max = resumen_df['Grps'].max()
-                titulo = "Nivel de GRPs"
-
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=valor,
-                title={'text': titulo},
-                gauge={
-                    'axis': {'range': [rango_min, rango_max]},
-                    'bar': {'color': "darkblue"},
-                    'steps': [
-                        {'range': [rango_min, (rango_min + rango_max)/2], 'color': "lightgray"},
-                        {'range': [(rango_min + rango_max)/2, rango_max], 'color': "lightgreen"},
-                    ]
-                }
-            ))
-
-            st.plotly_chart(fig, use_container_width=True, key=f"plotly_{st.session_state.metric_display}")
+        st.plotly_chart(fig, use_container_width=True, key=f"plotly_{st.session_state.metric_display}")
 
 
