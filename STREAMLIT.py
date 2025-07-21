@@ -117,7 +117,7 @@ if st.session_state.graficar:
     if os.path.exists("PRONOSTICO_PRUEBAS.xlsx"):
         df_resultado = pd.read_excel("PRONOSTICO_PRUEBAS.xlsx")
 
-        required_cols = ['SemNumero', 'Producto', 'PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas']
+        required_cols = ['SemNumero', 'Producto', 'INVENTARIO_TOTAL', 'PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas']
         if set(required_cols).issubset(df_resultado.columns):
 
             productos = df_resultado['Producto'].unique()
@@ -126,8 +126,9 @@ if st.session_state.graficar:
             df_filtro = df_resultado[df_resultado['Producto'] == prod_sel].copy()
             df_filtro.sort_values(by='SemNumero', inplace=True)
 
-            df_plot = df_filtro[['SemNumero', 'Producto', 'PRECIO_PROMEDIO',	'Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas']].copy()
+            df_plot = df_filtro[['SemNumero', 'Producto',  'INVENTARIO_TOTAL','PRECIO_PROMEDIO',	'Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas']].copy()
             df_plot = df_plot.rename(columns={'Predicción Unidades Desplazadas': 'PREDICCION',
+                                  'INVENTARIO_TOTAL':'Inventario',
                                   'PRECIO_PROMEDIO': 'Precio',
                                   'SUCURSALES_TOTAL': 'Sucursales',
                                   'Grupo Benavides':'Sucursales Benavides',
@@ -167,6 +168,7 @@ if st.session_state.graficar:
                     df_pred_stack.loc[mask, 'Precio'] = df_plot['Precio'].values
                     df_pred_stack.loc[mask, 'Monto'] = df_plot['Precio'].values * df_pred_stack.loc[mask, 'Unidades']
                     df_pred_stack.loc[mask, 'Sucursales'] = df_plot[f'Sucursales {grupo}'].values
+                    df_pred_stack['Inventario'] = df_plot['Inventario'].values
 
                 df_sellout = df_plot[['SemNumero', 'SELLOUT']].copy()
                 df_sellout = df_sellout.rename(columns={'SELLOUT': 'Unidades'})
@@ -175,6 +177,7 @@ if st.session_state.graficar:
                 df_sellout['Precio'] = df_plot['Precio'].values
                 df_sellout['Monto'] = df_plot['Precio'].values * df_sellout['Unidades']
                 df_sellout['Sucursales'] = df_plot['Sucursales']
+                df_sellout['Inventario'] = df_plot['Inventario'].values
 
                 df_melt = pd.concat([df_pred_stack, df_sellout], ignore_index=True)
 
@@ -201,9 +204,10 @@ if st.session_state.graficar:
                     color=alt.Color('Grupo:N', scale=alt.Scale(scheme='category10')),
                     tooltip=[
                         'Tipo', 'Grupo', 'SemNumero',
-                        alt.Tooltip('Unidades:Q', format=',.0f', title='Unidades'),
+                        alt.Tooltip('Unidades:Q', format=',.0f', title='Forecast Unidades'),
+                        alt.Tooltip('Monto:Q', format='$,.2f', title='Forecast Monto'),
+                        alt.Tooltip('Inventario:Q', format=',.0f', title='Inventario'),
                         alt.Tooltip('Precio:Q', format='$,.2f', title='Precio'),
-                        alt.Tooltip('Monto:Q', format='$,.2f', title='Monto'),
                         alt.Tooltip('Sucursales:Q', format=',.0f', title='Sucursales')
                     ]
                 ).properties(
