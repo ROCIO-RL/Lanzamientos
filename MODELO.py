@@ -79,7 +79,7 @@ for sku, grupo in df.groupby("SKU"):
         registro_actual = grupo.iloc[0:1].copy()
         sem_numero_base = registro_actual['SemNumero'].iloc[0]
 
-        for i in range(4):
+        for i in range(12):
             registro_procesado = deepcopy(registro_actual)
             #registro_procesado['SemNumero'] = sem_numero_base + i + 1
 
@@ -112,7 +112,7 @@ for sku, grupo in df.groupby("SKU"):
         registro_actual = ultimos.copy()
         sem_numero_base = registro_actual['SemNumero'].iloc[0]
 
-        for i in range(4):
+        for i in range(12):
             registro_procesado = deepcopy(registro_actual)
             registro_procesado['SemNumero'] = sem_numero_base + i + 1
 
