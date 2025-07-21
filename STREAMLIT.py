@@ -340,6 +340,19 @@ if st.session_state.graficar:
         grps_actual = resumen_df['Grps'].iloc[-1]  # Última semana
         col1, col2, col3 = st.columns(3)
 
+        st.subheader("🔔 Recomendaciones")
+        alertas = []
+
+        if sem_inventario < 3:
+            alertas.append("⚠️ **Inventario bajo**: menos de 3 semanas de cobertura.")
+        if grps_actual < (grps_min + grps_max)/2:
+            alertas.append("⚠️ **GRPs bajos**: podrías necesitar más inversión publicitaria.")
+        if not alertas:
+            alertas.append("✅ Todo está en niveles óptimos. ¡Buen trabajo!")
+
+        for alerta in alertas:
+            st.markdown(alerta)
+
         if "metric_display" not in st.session_state:
             st.session_state.metric_display = "GRPs"
 
