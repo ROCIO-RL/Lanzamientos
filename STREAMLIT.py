@@ -256,12 +256,12 @@ if st.session_state.graficar:
     if st.button("Mostrar Resumen"):
         resumen_df = df_plot.copy()
 
-        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else "-"
+        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else 0
         promedio_pred = resumen_df['PREDICCION'].mean()
         promedio_inventario = resumen_df['Inventario'].mean()
 
         # Ventas promedio para cálculo de días de inventario
-        ventas_promedio_base = promedio_real if promedio_real else promedio_pred
+        ventas_promedio_base = promedio_real if promedio_real>0 else promedio_pred
         dias_inventario = promedio_inventario / ventas_promedio_base if ventas_promedio_base > 0 else 0
 
         grps_min = resumen_df['Grps'].min()
