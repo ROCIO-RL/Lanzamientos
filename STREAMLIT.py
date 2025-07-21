@@ -256,7 +256,7 @@ if st.session_state.graficar:
     if st.button("Mostrar Resumen"):
         resumen_df = df_plot.copy()
 
-        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else None
+        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else "-"
         promedio_pred = resumen_df['PREDICCION'].mean()
         promedio_inventario = resumen_df['Inventario'].mean()
 
@@ -268,12 +268,12 @@ if st.session_state.graficar:
         grps_max = resumen_df['Grps'].max()
         grps_actual = resumen_df['Grps'].iloc[-1]  # Última semana
 
-        st.subheader("📊 Resumen Ejecutivo")
+        st.subheader("Resumen")
         st.markdown(f"""
         - **Unidades Reales Promedio**: {promedio_real:.0f}  
         - **Unidades Pronosticadas Promedio**: {promedio_pred:.0f}  
         - **Inventario Promedio**: {promedio_inventario:.0f}  
-        - **Días de Inventario Restantes**: {dias_inventario:.1f} días  
+        - **Semanas de Inventario Restantes**: {dias_inventario:.1f} días  
         """)
 
         # GRPs Gauge (rango visual)
