@@ -315,14 +315,14 @@ if st.session_state.graficar:
 
         for alerta in alertas:
             st.markdown(alerta)
-            
-    if "mostrar_resumen" not in st.session_state:
-      st.session_state.mostrar_resumen = False
 
-    if st.button("Mostrar Resumen"):
-        st.session_state.mostrar_resumen = True
+    if "mostrar_resumen2" not in st.session_state:
+      st.session_state.mostrar_resumen2 = False
+
+    if st.button("Mostrar Resumen2"):
+        st.session_state.mostrar_resumen2 = True
     # Mostrar solo si el estado está activado
-    if st.session_state.mostrar_resumen:
+    if st.session_state.mostrar_resumen2:
         st.subheader("Selecciona variable a visualizar")
         resumen_df = df_plot.copy()
 
