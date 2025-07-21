@@ -5,6 +5,7 @@ import subprocess
 import altair as alt
 import subprocess
 import sys
+import plotly.graph_objects as go
 
 marcas_porcentajes = {
     'AFFAIR': {'Benavides': 0.00, 'Chedraui': 1.00, 'Soriana': 0.00, 'Walmart': 0.00},
@@ -276,7 +277,7 @@ if st.session_state.graficar:
         """)
 
         # GRPs Gauge (rango visual)
-        import plotly.graph_objects as go
+        
 
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
