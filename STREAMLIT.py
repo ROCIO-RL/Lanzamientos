@@ -309,69 +309,60 @@ if st.session_state.graficar:
         for alerta in alertas:
             st.markdown(alerta)
 
-        # Variables base
-        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else 0
-        promedio_pred = resumen_df['PREDICCION'].mean()
-        promedio_inventario = resumen_df['Inventario'].mean()
+        st.subheader("📊 Selecciona variable a visualizar")
 
-        ventas_min = resumen_df[['SELLOUT', 'PREDICCION']].min().min()
-        ventas_max = resumen_df[['SELLOUT', 'PREDICCION']].max().max()
+        # Crear los botones
+        col1, col2, col3 = st.columns(3)
 
-        inventario_min = resumen_df['Inventario'].min()
-        inventario_max = resumen_df['Inventario'].max()
+        # Default: mostrar GRPs
+        if "metric_display" not in st.session_state:
+            st.session_state.metric_display = "GRPs"
 
-        grps_min = resumen_df['Grps'].min()
-        grps_max = resumen_df['Grps'].max()
+        with col1:
+            if st.button("🟢 Ventas"):
+                st.session_state.metric_display = "Ventas"
 
-        # -------------------------------
-        # 👇 BOTONES DE CONTROL
-        st.subheader("🎛️ Ajuste Visual de Variables")
+        with col2:
+            if st.button("🟡 Inventario"):
+                st.session_state.metric_display = "Inventario"
 
-        def selector_variable(nombre, min_val, max_val, session_key):
-            col1, col2, col3 = st.columns(3)
-            medio_val = (min_val + max_val) / 2
-
-            with col1:
-                if st.button(f"🔴 {nombre} Bajo", key=f"{session_key}_bajo"):
-                    st.session_state[session_key] = min_val
-
-            with col2:
-                if st.button(f"🟡 {nombre} Medio", key=f"{session_key}_medio"):
-                    st.session_state[session_key] = medio_val
-
-            with col3:
-                if st.button(f"🟢 {nombre} Alto", key=f"{session_key}_alto"):
-                    st.session_state[session_key] = max_val
-
-            # Valor por defecto si no se ha seleccionado nada
-            return st.session_state.get(session_key, medio_val)
+        with col3:
+            if st.button("🔴 GRPs"):
+                st.session_state.metric_display = "GRPs"
 
 
-        # Ejecutar selectores
-        ventas_valor = selector_variable("Ventas", ventas_min, ventas_max, "ventas_val")
-        inventario_valor = selector_variable("Inventario", inventario_min, inventario_max, "inv_val")
-        grps_valor = selector_variable("GRPs", grps_min, grps_max, "grps_val")
+        # Asignar variable a mostrar
+        if st.session_state.metric_display == "Ventas":
+            valor = promedio_real if promedio_real > 0 else promedio_pred
+            rango_min = resumen_df[['SELLOUT', 'PREDICCION']].min().min()
+            rango_max = resumen_df[['SELLOUT', 'PREDICCION']].max().max()
+            titulo = "Ventas promedio"
 
-        # -------------------------------
-        # 👇 GRAFICO DE GRPs COMO EJEMPLO
-        st.subheader("📈 Visualización GRPs (basado en selección)")
+        elif st.session_state.metric_display == "Inventario":
+            valor = promedio_inventario
+            rango_min = resumen_df['Inventario'].min()
+            rango_max = resumen_df['Inventario'].max()
+            titulo = "Inventario promedio"
 
+        else:  # GRPs
+            valor = resumen_df['Grps'].iloc[-1]
+            rango_min = resumen_df['Grps'].min()
+            rango_max = resumen_df['Grps'].max()
+            titulo = "Nivel de GRPs"
+
+        # Mostrar gráfico dinámico
         fig = go.Figure(go.Indicator(
-            mode = "gauge+number",
-            value = grps_valor,
-            title = {'text': "Nivel de GRPs"},
-            gauge = {
-                'axis': {'range': [grps_min, grps_max]},
+            mode="gauge+number",
+            value=valor,
+            title={'text': titulo},
+            gauge={
+                'axis': {'range': [rango_min, rango_max]},
                 'bar': {'color': "darkblue"},
                 'steps': [
-                    {'range': [grps_min, (grps_min + grps_max)/2], 'color': "lightgray"},
-                    {'range': [(grps_min + grps_max)/2, grps_max], 'color': "lightgreen"},
+                    {'range': [rango_min, (rango_min + rango_max)/2], 'color': "lightgray"},
+                    {'range': [(rango_min + rango_max)/2, rango_max], 'color': "lightgreen"},
                 ]
             }
         ))
 
         st.plotly_chart(fig, use_container_width=True)
-
-        # Puedes luego usar ventas_valor, inventario_valor, etc., para otros análisis o recomendaciones
-
-
