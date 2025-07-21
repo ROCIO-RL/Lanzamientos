@@ -319,7 +319,20 @@ if st.session_state.graficar:
     # Mostrar solo si el estado está activado
     if st.session_state.mostrar_resumen:
         st.subheader("Selecciona variable a visualizar")
+        resumen_df = df_plot.copy()
 
+        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else 0
+        promedio_pred = resumen_df['PREDICCION'].mean()
+        promedio_inventario = resumen_df['Inventario'].mean()
+        inventario_actual = resumen_df['Inventario'].iloc[-1]  # Última semana
+
+        # Ventas promedio para cálculo de días de inventario
+        ventas_promedio_base = promedio_real if promedio_real>0 else promedio_pred
+        sem_inventario = promedio_inventario / ventas_promedio_base if ventas_promedio_base > 0 else 0
+
+        grps_min = resumen_df['Grps'].min()
+        grps_max = resumen_df['Grps'].max()
+        grps_actual = resumen_df['Grps'].iloc[-1]  # Última semana
         col1, col2, col3 = st.columns(3)
 
         if "metric_display" not in st.session_state:
