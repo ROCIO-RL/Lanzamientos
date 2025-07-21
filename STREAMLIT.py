@@ -262,7 +262,7 @@ if st.session_state.graficar:
 
         # Ventas promedio para cálculo de días de inventario
         ventas_promedio_base = promedio_real if promedio_real>0 else promedio_pred
-        dias_inventario = promedio_inventario / ventas_promedio_base if ventas_promedio_base > 0 else 0
+        sem_inventario = promedio_inventario / ventas_promedio_base if ventas_promedio_base > 0 else 0
 
         grps_min = resumen_df['Grps'].min()
         grps_max = resumen_df['Grps'].max()
@@ -273,7 +273,7 @@ if st.session_state.graficar:
         - **Unidades Reales Promedio**: {promedio_real:.0f}  
         - **Unidades Pronosticadas Promedio**: {promedio_pred:.0f}  
         - **Inventario Promedio**: {promedio_inventario:.0f}  
-        - **Semanas de Inventario Restantes**: {dias_inventario:.1f} días  
+        - **Semanas de Inventario Restantes**: {sem_inventario:.1f} semanas  
         """)
 
         # GRPs Gauge (rango visual)
@@ -299,8 +299,8 @@ if st.session_state.graficar:
         st.subheader("🔔 Recomendaciones")
         alertas = []
 
-        if dias_inventario < 3:
-            alertas.append("⚠️ **Inventario bajo**: menos de 3 días de cobertura.")
+        if sem_inventario < 3:
+            alertas.append("⚠️ **Inventario bajo**: menos de 3 semanas de cobertura.")
         if grps_actual < (grps_min + grps_max)/2:
             alertas.append("⚠️ **GRPs bajos**: podrías necesitar más inversión publicitaria.")
         if not alertas:
@@ -308,4 +308,70 @@ if st.session_state.graficar:
 
         for alerta in alertas:
             st.markdown(alerta)
+
+        # Variables base
+        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else 0
+        promedio_pred = resumen_df['PREDICCION'].mean()
+        promedio_inventario = resumen_df['Inventario'].mean()
+
+        ventas_min = resumen_df[['SELLOUT', 'PREDICCION']].min().min()
+        ventas_max = resumen_df[['SELLOUT', 'PREDICCION']].max().max()
+
+        inventario_min = resumen_df['Inventario'].min()
+        inventario_max = resumen_df['Inventario'].max()
+
+        grps_min = resumen_df['Grps'].min()
+        grps_max = resumen_df['Grps'].max()
+
+        # -------------------------------
+        # 👇 BOTONES DE CONTROL
+        st.subheader("🎛️ Ajuste Visual de Variables")
+
+        def selector_variable(nombre, min_val, max_val, session_key):
+            col1, col2, col3 = st.columns(3)
+            medio_val = (min_val + max_val) / 2
+
+            with col1:
+                if st.button(f"🔴 {nombre} Bajo", key=f"{session_key}_bajo"):
+                    st.session_state[session_key] = min_val
+
+            with col2:
+                if st.button(f"🟡 {nombre} Medio", key=f"{session_key}_medio"):
+                    st.session_state[session_key] = medio_val
+
+            with col3:
+                if st.button(f"🟢 {nombre} Alto", key=f"{session_key}_alto"):
+                    st.session_state[session_key] = max_val
+
+            # Valor por defecto si no se ha seleccionado nada
+            return st.session_state.get(session_key, medio_val)
+
+
+        # Ejecutar selectores
+        ventas_valor = selector_variable("Ventas", ventas_min, ventas_max, "ventas_val")
+        inventario_valor = selector_variable("Inventario", inventario_min, inventario_max, "inv_val")
+        grps_valor = selector_variable("GRPs", grps_min, grps_max, "grps_val")
+
+        # -------------------------------
+        # 👇 GRAFICO DE GRPs COMO EJEMPLO
+        st.subheader("📈 Visualización GRPs (basado en selección)")
+
+        fig = go.Figure(go.Indicator(
+            mode = "gauge+number",
+            value = grps_valor,
+            title = {'text': "Nivel de GRPs"},
+            gauge = {
+                'axis': {'range': [grps_min, grps_max]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [grps_min, (grps_min + grps_max)/2], 'color': "lightgray"},
+                    {'range': [(grps_min + grps_max)/2, grps_max], 'color': "lightgreen"},
+                ]
+            }
+        ))
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Puedes luego usar ventas_valor, inventario_valor, etc., para otros análisis o recomendaciones
+
 
