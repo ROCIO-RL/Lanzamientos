@@ -251,3 +251,60 @@ if st.session_state.graficar:
                 st.error(f"Error al actualizar y ejecutar modelo: {e}")
     else:
         st.warning("El archivo LAYOUTPRUEBAS.xlsx no se ha generado aún.")
+
+    if st.button("Mostrar Resumen"):
+        resumen_df = df_plot.copy()
+
+        promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else None
+        promedio_pred = resumen_df['PREDICCION'].mean()
+        promedio_inventario = resumen_df['Inventario'].mean()
+
+        # Ventas promedio para cálculo de días de inventario
+        ventas_promedio_base = promedio_real if promedio_real else promedio_pred
+        dias_inventario = promedio_inventario / ventas_promedio_base if ventas_promedio_base > 0 else 0
+
+        grps_min = resumen_df['Grps'].min()
+        grps_max = resumen_df['Grps'].max()
+        grps_actual = resumen_df['Grps'].iloc[-1]  # Última semana
+
+        st.subheader("📊 Resumen Ejecutivo")
+        st.markdown(f"""
+        - **Unidades Reales Promedio**: {promedio_real:.0f}  
+        - **Unidades Pronosticadas Promedio**: {promedio_pred:.0f}  
+        - **Inventario Promedio**: {promedio_inventario:.0f}  
+        - **Días de Inventario Restantes**: {dias_inventario:.1f} días  
+        """)
+
+        # GRPs Gauge (rango visual)
+        import plotly.graph_objects as go
+
+        fig = go.Figure(go.Indicator(
+            mode = "gauge+number",
+            value = grps_actual,
+            title = {'text': "Nivel de GRPs"},
+            gauge = {
+                'axis': {'range': [grps_min, grps_max]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [grps_min, (grps_min + grps_max)/2], 'color': "lightgray"},
+                    {'range': [(grps_min + grps_max)/2, grps_max], 'color': "lightgreen"},
+                ]
+            }
+        ))
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Reglas de negocio: Alertas
+        st.subheader("🔔 Recomendaciones")
+        alertas = []
+
+        if dias_inventario < 3:
+            alertas.append("⚠️ **Inventario bajo**: menos de 3 días de cobertura.")
+        if grps_actual < (grps_min + grps_max)/2:
+            alertas.append("⚠️ **GRPs bajos**: podrías necesitar más inversión publicitaria.")
+        if not alertas:
+            alertas.append("✅ Todo está en niveles óptimos. ¡Buen trabajo!")
+
+        for alerta in alertas:
+            st.markdown(alerta)
+
