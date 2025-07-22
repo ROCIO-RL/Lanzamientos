@@ -368,45 +368,6 @@ if st.session_state.graficar:
 
 
 
-        st.subheader("🧪 Simulación automática de GRPs sugeridos")
-
-        grps_recomendado = None
-
-        # Solo aplica si hay inventario y bajo inventario actual
-        if grps_actual < (grps_min + grps_max)/2:
-
-            for grps_test in range(int(grps_actual), int(grps_max) + 100, 10):
-                # Crear una copia del DataFrame con GRPs simulado
-                df_sim = resumen_df.copy()
-                df_sim['Grps'] = grps_test  # Sobrescribimos con el valor simulado
-
-                # Guardar temporalmente el archivo
-                with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', delete=False) as tmp_file:
-                    df_sim.to_csv(tmp_file.name, index=False)
-                    tmp_path = tmp_file.name
-                df_sim.to_excel("LAYOUTPRUEBAS.xlsx", sheet_name='Datos',index=False)
-                # Ejecutar el modelo pasando el CSV simulado
-                result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
-
-                try:
-                    df_resultadospruebas = pd.read_excel("PRONOSTICO_PRUEBAS.xlsx")
-                    pred_ventas = df_resultadospruebas['Predicción Unidades Desplazadas']
-                    print(pred_ventas)
-                    #semanas_sim = inventario_actual / pred_ventas if pred_ventas > 0 else 0
-                    
-                    if pred_ventas > sellout_base:
-                        grps_recomendado = grps_test
-                        break
-
-                except Exception as e:
-                    st.warning(f"Error durante simulación: {e}")
-                    break
-
-            # Mostrar recomendación
-            if grps_recomendado:
-                st.success(f"✅ Se recomienda aumentar los GRPs a **{grps_recomendado}** para asegurar al menos 3 semanas de cobertura.")
-            else:
-                st.warning("🔁 No se encontró un nivel de GRPs que garantice ≥3 semanas con los valores simulados.")
 
 
 
