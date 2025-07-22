@@ -384,7 +384,7 @@ if st.session_state.graficar:
                 with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', delete=False) as tmp_file:
                     df_sim.to_csv(tmp_file.name, index=False)
                     tmp_path = tmp_file.name
-                st.session_state.df_sim.to_excel("LAYOUTPRUEBAS.xlsx", sheet_name='Datos',index=False)
+                df_sim.to_excel("LAYOUTPRUEBAS.xlsx", sheet_name='Datos',index=False)
                 # Ejecutar el modelo pasando el CSV simulado
                 result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
 
