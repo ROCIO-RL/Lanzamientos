@@ -386,10 +386,7 @@ if st.session_state.graficar:
                     tmp_path = tmp_file.name
 
                 # Ejecutar el modelo pasando el CSV simulado
-                result = subprocess.run(
-                    [sys.executable, 'MODELO.py', tmp_path],
-                    capture_output=True, text=True
-                )
+                result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
 
                 try:
                     df_resultadospruebas = pd.read_excel("PRONOSTICO_PRUEBAS.xlsx")
