@@ -367,5 +367,39 @@ if st.session_state.graficar:
 
 
 
+        # ===============================
+        # 💡 SIMULACIÓN AUTOMÁTICA INTELIGENTE
+        # ===============================
+        st.subheader("🧪 Simulación recomendada")
+
+        # Simulación solo si el inventario es bajo
+        if sem_inventario < 3 and promedio_inventario > 0:
+
+            # Buscar el GRPs mínimo que garantice al menos 3 semanas de cobertura
+            grps_recomendado = None
+
+            for grps_test in range(int(grps_actual), int(grps_max) + 100, 10):
+                # Asegúrate de que el modelo funcione con estos argumentos
+                df_sim = resumen_df.copy()
+                df_sim['Grps'] = grps_test
+
+                # Calcula la predicción con tu modelo para ese GRPs simulado
+                pred_ventas = modelo.predict(df_sim).mean()  # Puedes ajustar a batch o fila específica
+
+                # Calcular semanas de cobertura simuladas
+                sem_sim = promedio_inventario / pred_ventas if pred_ventas > 0 else 0
+
+                if sem_sim >= 3:
+                    grps_recomendado = grps_test
+                    break
+
+            if grps_recomendado:
+                st.success(f"✅ Para alcanzar al menos 3 semanas de inventario, deberías aumentar los GRPs a **{grps_recomendado}**.")
+            else:
+                st.warning("🔁 No se encontró un nivel de GRPs que garantice al menos 3 semanas de inventario dentro del rango simulado.")
+
+
+
+
 
     
