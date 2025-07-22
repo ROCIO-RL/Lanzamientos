@@ -373,7 +373,7 @@ if st.session_state.graficar:
         grps_recomendado = None
 
         # Solo aplica si hay inventario y bajo inventario actual
-        if promedio_inventario > 0 and sem_inventario < 3:
+        if inventario_actual > 0 and sem_inventario < 3:
 
             for grps_test in range(int(grps_actual), int(grps_max) + 100, 10):
                 # Crear una copia del DataFrame con GRPs simulado
