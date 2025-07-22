@@ -342,7 +342,16 @@ if st.session_state.graficar:
         grps_min = resumen_df['Grps'].min()
         grps_max = resumen_df['Grps'].max()
         grps_actual = resumen_df['Grps'].iloc[-1]  # Última semana
-        col1, col2, col3 = st.columns(3)
+
+
+        st.subheader("Resumen")
+        st.markdown(f"""
+        - **Unidades Reales Promedio**: {promedio_real:.0f}  
+        - **Unidades Pronosticadas Promedio**: {promedio_pred:.0f}  
+        - **Inventario Restante**: {inventario_actual:.0f}  
+        - **Semanas de Inventario Restantes**: {sem_inventario:.1f} semanas  
+        """)
+
 
         st.subheader("Recomendaciones")
         alertas = []
@@ -358,6 +367,11 @@ if st.session_state.graficar:
 
         for alerta in alertas:
             st.markdown(alerta)
+
+
+        col1, col2, col3 = st.columns(3)
+
+        
 
         if "metric_display" not in st.session_state:
             st.session_state.metric_display = "GRPs"
