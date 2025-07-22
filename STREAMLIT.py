@@ -393,7 +393,7 @@ if st.session_state.graficar:
 
                 try:
                     pred_ventas = float(result.stdout.strip())
-                    semanas_sim = promedio_inventario / pred_ventas if pred_ventas > 0 else 0
+                    semanas_sim = inventario_actual / pred_ventas if pred_ventas > 0 else 0
 
                     if semanas_sim >= 3:
                         grps_recomendado = grps_test
