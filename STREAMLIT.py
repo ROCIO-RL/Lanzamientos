@@ -373,7 +373,7 @@ if st.session_state.graficar:
         grps_recomendado = None
 
         # Solo aplica si hay inventario y bajo inventario actual
-        if inventario_actual > 0 and sem_inventario < 3:
+        if grps_actual < (grps_min + grps_max)/2:
 
             for grps_test in range(int(grps_actual), int(grps_max) + 100, 10):
                 # Crear una copia del DataFrame con GRPs simulado
@@ -395,8 +395,8 @@ if st.session_state.graficar:
                     pred_ventas = float(result.stdout.strip())
                     print(pred_ventas)
                     semanas_sim = inventario_actual / pred_ventas if pred_ventas > 0 else 0
-
-                    if semanas_sim >= 3:
+                    
+                    if pred_ventas > sellout_base:
                         grps_recomendado = grps_test
                         break
 
