@@ -357,7 +357,10 @@ if st.session_state.graficar:
         alertas = []
 
         if sem_inventario < 3:
-            alertas.append(f"⚠️ **Inventario bajo**: {sem_inventario} semanas de cobertura.")
+            if sem_inventario==0:
+                alertas.append(f"⚠️ **Inventario agotado**")
+            else:
+                alertas.append(f"⚠️ **Inventario bajo**: {sem_inventario} semanas de cobertura.")
         if grps_actual < (grps_min + grps_max)/2:
             alertas.append("⚠️ **GRPs bajos**: podrías necesitar más inversión publicitaria.")
         if sellout_base < ventas_promedio_base:
