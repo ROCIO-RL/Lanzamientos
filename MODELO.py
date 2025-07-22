@@ -80,6 +80,9 @@ for sku, grupo in df.groupby("SKU"):
         sem_numero_base = registro_actual['SemNumero'].iloc[0]
 
         for i in range(12):
+
+            if registro_actual['INVENTARIO_TOTAL'].iloc[0] <= 0:
+                break  # Se detiene si el inventario es 0 o menos
             registro_procesado = deepcopy(registro_actual)
             #registro_procesado['SemNumero'] = sem_numero_base + i + 1
 
@@ -113,6 +116,10 @@ for sku, grupo in df.groupby("SKU"):
         sem_numero_base = registro_actual['SemNumero'].iloc[0]
 
         for i in range(12):
+
+            if registro_actual['INVENTARIO_TOTAL'].iloc[0] <= 0:
+                break  # Se detiene si el inventario es 0 o menos    
+
             registro_procesado = deepcopy(registro_actual)
             registro_procesado['SemNumero'] = sem_numero_base + i + 1
 
