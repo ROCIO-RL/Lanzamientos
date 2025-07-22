@@ -392,9 +392,10 @@ if st.session_state.graficar:
                 )
 
                 try:
-                    pred_ventas = float(result.stdout.strip())
+                    df_resultadospruebas = pd.read_excel("PRONOSTICO_PRUEBAS.xlsx")
+                    pred_ventas = df_resultadospruebas['Predicción Unidades Desplazadas']
                     print(pred_ventas)
-                    semanas_sim = inventario_actual / pred_ventas if pred_ventas > 0 else 0
+                    #semanas_sim = inventario_actual / pred_ventas if pred_ventas > 0 else 0
                     
                     if pred_ventas > sellout_base:
                         grps_recomendado = grps_test
