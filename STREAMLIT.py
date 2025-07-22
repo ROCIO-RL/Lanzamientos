@@ -6,6 +6,7 @@ import altair as alt
 import subprocess
 import sys
 import plotly.graph_objects as go
+import tempfile
 
 marcas_porcentajes = {
     'AFFAIR': {'Benavides': 0.00, 'Chedraui': 1.00, 'Soriana': 0.00, 'Walmart': 0.00},
@@ -367,41 +368,47 @@ if st.session_state.graficar:
 
 
 
-        # ===============================
-        # 💡 SIMULACIÓN AUTOMÁTICA INTELIGENTE
-        # ===============================
-        st.subheader("🧪 Simulación recomendada")
-        def simular_prediccion(grps_simulado, inventario_actual, precio_actual):
-            result = subprocess.run(
-                [sys.executable, 'MODELO.py', str(grps_simulado), str(inventario_actual), str(precio_actual)],
-                capture_output=True, text=True
-            )
-            if result.returncode != 0:
-                return None
-            return float(result.stdout.strip())
+        st.subheader("🧪 Simulación automática de GRPs sugeridos")
 
+        grps_recomendado = None
 
-        # Simulación solo si el inventario es bajo
-        if sem_inventario < 3 and promedio_inventario > 0:
+        # Solo aplica si hay inventario y bajo inventario actual
+        if promedio_inventario > 0 and sem_inventario < 3:
 
-            grps_recomendado = None
             for grps_test in range(int(grps_actual), int(grps_max) + 100, 10):
-                pred_ventas = simular_prediccion(grps_test, promedio_inventario, precio_actual)
+                # Crear una copia del DataFrame con GRPs simulado
+                df_sim = resumen_df.copy()
+                df_sim['Grps'] = grps_test  # Sobrescribimos con el valor simulado
 
-                if pred_ventas and pred_ventas > 0:
-                    semanas_simuladas = promedio_inventario / pred_ventas
-                    if semanas_simuladas >= 3:
+                # Guardar temporalmente el archivo
+                with tempfile.NamedTemporaryFile(mode='w+', suffix='.csv', delete=False) as tmp_file:
+                    df_sim.to_csv(tmp_file.name, index=False)
+                    tmp_path = tmp_file.name
+
+                # Ejecutar el modelo pasando el CSV simulado
+                result = subprocess.run(
+                    [sys.executable, 'MODELO.py', tmp_path],
+                    capture_output=True, text=True
+                )
+
+                try:
+                    pred_ventas = float(result.stdout.strip())
+                    semanas_sim = promedio_inventario / pred_ventas if pred_ventas > 0 else 0
+
+                    if semanas_sim >= 3:
                         grps_recomendado = grps_test
                         break
 
+                except Exception as e:
+                    st.warning(f"Error durante simulación: {e}")
+                    break
 
+            # Mostrar recomendación
             if grps_recomendado:
-                st.success(f"✅ Para alcanzar al menos 3 semanas de inventario, deberías aumentar los GRPs a **{grps_recomendado}**.")
+                st.success(f"✅ Se recomienda aumentar los GRPs a **{grps_recomendado}** para asegurar al menos 3 semanas de cobertura.")
             else:
-                st.warning("🔁 No se encontró un nivel de GRPs que garantice al menos 3 semanas de inventario dentro del rango simulado.")
+                st.warning("🔁 No se encontró un nivel de GRPs que garantice ≥3 semanas con los valores simulados.")
 
 
 
 
-
-    
