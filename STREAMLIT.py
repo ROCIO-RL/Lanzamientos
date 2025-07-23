@@ -252,12 +252,12 @@ if st.session_state.graficar:
                     strokeDash=[4, 4], color='red'
                 ).encode(
                     x=alt.X('SemNumero:O'),
-                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='right')),
+                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='left')),
                     tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura')]
                 )
 
                 # Combinar ambos gráficos con ejes Y independientes
-                combined_chart = alt.layer(line_chart).resolve_scale(
+                combined_chart = alt.layer(bar_chart, line_chart).resolve_scale(
                     y='independent'
                 ).properties(
                     title=f"Predicción vs Sellout - {prod_sel}",
