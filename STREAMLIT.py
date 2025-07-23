@@ -323,7 +323,7 @@ if st.session_state.graficar:
 
                 base_grps = grps_actual if grps_actual > 0 else 1
                 base_pred = sellout_pred_actual
-
+                x = sim_df['GRPs Simulados']
                 sim_df['Predicción Estimada'] = sim_df['GRPs Simulados'].apply(lambda g: base_pred * g / base_grps)
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
                 sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
