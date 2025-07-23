@@ -249,7 +249,7 @@ if st.session_state.graficar:
 
                 # Gráfico de línea punteada para Temperatura con eje secundario
                 line_chart = alt.Chart(df_melt).mark_line(
-                    strokeDash=[4, 4], color='black'
+                    strokeDash=[4, 4], color='red'
                 ).encode(
                     x=alt.X('SemNumero:O'),
                     y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura (°C)', orient='right')),
