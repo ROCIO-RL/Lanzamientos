@@ -275,6 +275,7 @@ if st.session_state.graficar:
         # Ventas promedio para cálculo de días de inventario
         ventas_promedio_base = promedio_real if promedio_real>0 else promedio_pred
         sem_inventario = inventario_actual / ventas_promedio_base if ventas_promedio_base > 0 else 0
+        dias_inventario = sem_inventario*7
         sellout_base = sellout_real_actual if sellout_real_actual>0 else sellout_pred_actual
 
         grps_min = resumen_df['Grps'].min()
@@ -284,10 +285,10 @@ if st.session_state.graficar:
 
         st.subheader("Resumen")
         st.markdown(f"""
-        - **Unidades Reales Promedio**: {promedio_real:.0f}  
-        - **Unidades Pronosticadas Promedio**: {promedio_pred:.0f}  
-        - **Inventario Restante**: {inventario_actual:.0f}  
-        - **Semanas de Inventario Restantes**: {sem_inventario:.1f} semanas  
+        - **Unidades Reales Promedio**: {promedio_real:,.0f}  
+        - **Unidades Pronosticadas Promedio**: {promedio_pred:,.0f}  
+        - **Inventario Restante**: {inventario_actual:,.0f}  
+        - **Dias de Inventario Restantes**: {sem_inventario:,.0f} dias  
         """)
 
 
