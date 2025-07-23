@@ -8,6 +8,7 @@ import sys
 import plotly.graph_objects as go
 import tempfile
 import numpy as np
+from scipy.optimize import curve_fit
 
 marcas_porcentajes = {
     'AFFAIR': {'Benavides': 0.00, 'Chedraui': 1.00, 'Soriana': 0.00, 'Walmart': 0.00},
@@ -314,7 +315,7 @@ if st.session_state.graficar:
             y = resumen_df['PREDICCION']
             
             # Para regresión logarítmica: y = a + b*log(x)
-            from scipy.optimize import curve_fit
+            
             def modelo_log(x, a, b):
                 return a + b * np.log(x)
             
