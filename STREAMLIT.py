@@ -174,7 +174,7 @@ if st.session_state.graficar:
                     df_pred_stack.loc[mask, 'Sucursales'] = df_plot[f'Sucursales {grupo}'].values
                     df_pred_stack.loc[mask,'Inventario'] = df_plot['Inventario'].values
                     df_pred_stack.loc[mask,'Grps'] = df_plot['Grps'].values
-                    df_pred_stack.loc[mask,','TEMPERATURA''] = df_plot[','TEMPERATURA''].values
+                    df_pred_stack.loc[mask,'TEMPERATURA'] = df_plot['TEMPERATURA'].values
 
                 df_sellout = df_plot[['SemNumero', 'SELLOUT']].copy()
                 df_sellout = df_sellout.rename(columns={'SELLOUT': 'Unidades'})
