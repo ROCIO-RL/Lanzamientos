@@ -248,7 +248,7 @@ if st.session_state.graficar:
                 )
 
                 # Gráfico de línea (Temperatura)
-                line_chart = alt.Chart(df_melt).mark_line(strokeDash=[4, 4], color='black').encode(
+                line_chart = alt.Chart(df_melt).mark_line(strokeDash=[4, 4], color='red').encode(
                     x='SemNumero:O',
                     y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='right')),
                     tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura')]
