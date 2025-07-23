@@ -321,13 +321,45 @@ if st.session_state.graficar:
             sim_df = pd.DataFrame({
                 'GRPs Simulados': grps_simulados
             })
-
-             
+    
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
                 sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
                 st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
                 st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
+            except Exception as e:
+                st.markdown("")
+
+        inventario_bajo = dias_inventario < 30
+
+        if inventario_bajo:
+            st.warning("Inventario Bajo")
+            st.subheader("Recomendación de Incremento de Inventario")
+            
+            # Tomamos el último GRPs real como base
+            inventario_base = inventario_actual
+
+            # Ajustamos una regresión logarítmica con los datos históricos
+            if inventario_actual==0:
+                resumen_df['Inventario']=1000
+                inventario_base=1000
+            x = resumen_df['Inventario'] 
+            y = resumen_df['PREDICCION']
+
+            # Simulamos incrementos de 10% a 100%
+            incrementos = np.arange(0.1, 1.1, 0.1)
+            inventario_simulados = inventario_base * (1 + incrementos)
+
+            # Creamos un DataFrame para registrar simulaciones
+            sim_df = pd.DataFrame({
+                'Inventario Simulado': inventario_simulados
+            })
+    
+            try:
+                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  
+                sim_df['Predicción Estimada'] = modelo_log(sim_df['Inventario Simulado'], *params)
+                st.dataframe(sim_df.style.format({"Inventario Simulado": "{:,.0f}", "Predicción Estimada": "{:,.0f}"}))
+                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de Inventario a las unidades desplazadas ")
             except Exception as e:
                 st.markdown("")
 
