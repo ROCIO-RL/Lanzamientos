@@ -228,42 +228,25 @@ if st.session_state.graficar:
                 st.altair_chart(chart, use_container_width=True)
 
 
-               
 
-                # Gráfico de barras (Unidades)
-                bar = alt.Chart(df_melt).mark_bar().encode(
-                    x=alt.X('SemNumero:O', title='Semana'),
-                    xOffset='Tipo:N',
-                    y=alt.Y('Unidades:Q', title='Unidades'),
-                    color=alt.Color('Grupo:N', scale=alt.Scale(scheme='category10')),
-                    tooltip=[
-                        'Tipo', 'Grupo', 'SemNumero',
-                        alt.Tooltip('Unidades:Q', format=',.0f', title='Forecast Unidades'),
-                        alt.Tooltip('Monto:Q', format='$,.2f', title='Forecast Monto'),
-                        alt.Tooltip('Inventario:Q', format=',.0f', title='Inventario Total'),
-                        alt.Tooltip('Precio:Q', format='$,.2f', title='Precio'),
-                        alt.Tooltip('Sucursales:Q', format=',.0f', title='Sucursales'),
-                        alt.Tooltip('Grps:Q', format=',.0f', title='Grps')
-                    ]
-                )
-
-                # Gráfico de línea punteada (Temperatura)
-                # Creamos una nueva escala con un nombre único ('temp_scale') para forzar eje secundario
+                # Línea punteada para temperatura con eje secundario a la derecha
                 line = alt.Chart(df_melt).mark_line(
                     strokeDash=[4, 4],
                     color='black'
                 ).encode(
                     x=alt.X('SemNumero:O'),
-                    y=alt.Y('Temperatura:Q',
-                            title='Temperatura (°C)',
-                            scale=alt.Scale(name='temp_scale'),
-                            axis=alt.Axis(orient='right')
+                    y=alt.Y('TEMPERATURA:Q',
+                            axis=alt.Axis(title='Temperatura (°C)', orient='right'),
+                            scale=alt.Scale(name='temp_scale')
                     ),
-                    tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura (°C)')]
+                    tooltip=[alt.Tooltip('TEMPERATURA:Q', title='Temperatura')]
                 )
 
-                # Combinamos ambos gráficos y resolvemos escalas independientes
-                chart = alt.layer(bar, line).resolve_scale(
+                # Combinar con gráfico de barras
+                chart_combinado = alt.layer(
+                    chart,
+                    line
+                ).resolve_scale(
                     y='independent'
                 ).properties(
                     title=f"Predicción vs Sellout - {prod_sel}",
@@ -272,9 +255,11 @@ if st.session_state.graficar:
                 )
 
                 # Mostrar en Streamlit
-                st.altair_chart(chart, use_container_width=True)
+                st.altair_chart(chart_combinado, use_container_width=True)
 
 
+
+                
             else:
                 st.warning("No se encontró una marca coincidente en el producto.")
 
