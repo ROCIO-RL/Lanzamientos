@@ -314,6 +314,7 @@ if st.session_state.graficar:
             # Ajustamos una regresión logarítmica con los datos históricos
             x = resumen_df['Grps']
             y = resumen_df['PREDICCION']
+            st.dataframe(y)
             
             # Para regresión logarítmica: y = a + b*log(x)
             
