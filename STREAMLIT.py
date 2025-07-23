@@ -300,7 +300,7 @@ if st.session_state.graficar:
         def modelo_log(x, a, b):
                 return a + b * np.log(x)
         if medios_bajo:
-            st.markdown("Grps Bajos")
+            st.warning("Grps Bajos")
             st.subheader("Recomendación de Incremento de GRPs")
             
             # Tomamos el último GRPs real como base
