@@ -301,7 +301,7 @@ if st.session_state.graficar:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
             # Tomamos el último GRPs real como base
-            grps_base = grps_actual if grps_actual>0 else 1
+            grps_base = grps_actual if grps_actual>0 else 100
 
             # Simulamos incrementos de 10% a 100%
             incrementos = np.arange(0.1, 1.1, 0.1)
@@ -313,7 +313,7 @@ if st.session_state.graficar:
             })
 
             # Ajustamos una regresión logarítmica con los datos históricos
-            x = resumen_df['Grps']
+            x = resumen_df['Grps'] if resumen_df['Grps']>0 else 100
             y = resumen_df['PREDICCION']
             st.write("Valores usados para ajuste:")
             st.write("GRPs:", x)
