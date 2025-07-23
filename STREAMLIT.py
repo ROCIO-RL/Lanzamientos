@@ -228,10 +228,10 @@ if st.session_state.graficar:
                 st.altair_chart(chart, use_container_width=True)
 
 
-                st.dataframe(df_melt['TEMPERATURA'])
+               
 
-                # Gráfico de barras para Unidades
-                bar_chart = alt.Chart(df_melt).mark_bar().encode(
+                # Gráfico de barras (Unidades)
+                bar = alt.Chart(df_melt).mark_bar().encode(
                     x=alt.X('SemNumero:O', title='Semana'),
                     xOffset='Tipo:N',
                     y=alt.Y('Unidades:Q', title='Unidades'),
@@ -247,17 +247,23 @@ if st.session_state.graficar:
                     ]
                 )
 
-                # Gráfico de línea punteada para Temperatura con eje secundario
-                line_chart = alt.Chart(df_melt).mark_line(
-                    strokeDash=[4, 4], color='red'
+                # Gráfico de línea punteada (Temperatura)
+                # Creamos una nueva escala con un nombre único ('temp_scale') para forzar eje secundario
+                line = alt.Chart(df_melt).mark_line(
+                    strokeDash=[4, 4],
+                    color='black'
                 ).encode(
                     x=alt.X('SemNumero:O'),
-                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='right')),
-                    tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura')]
+                    y=alt.Y('Temperatura:Q',
+                            title='Temperatura (°C)',
+                            scale=alt.Scale(name='temp_scale'),
+                            axis=alt.Axis(orient='right')
+                    ),
+                    tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura (°C)')]
                 )
 
-                # Combinar ambos gráficos con ejes Y independientes
-                combined_chart = alt.layer(bar_chart, line_chart).resolve_scale(
+                # Combinamos ambos gráficos y resolvemos escalas independientes
+                chart = alt.layer(bar, line).resolve_scale(
                     y='independent'
                 ).properties(
                     title=f"Predicción vs Sellout - {prod_sel}",
@@ -266,7 +272,8 @@ if st.session_state.graficar:
                 )
 
                 # Mostrar en Streamlit
-                st.altair_chart(combined_chart, use_container_width=True)
+                st.altair_chart(chart, use_container_width=True)
+
 
             else:
                 st.warning("No se encontró una marca coincidente en el producto.")
