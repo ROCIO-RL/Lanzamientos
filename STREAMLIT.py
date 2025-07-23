@@ -291,6 +291,8 @@ if st.session_state.graficar:
         - **Unidades Pronosticadas Promedio**: {promedio_pred:,.0f}  
         - **Inventario Restante**: {inventario_actual:,.0f}  
         - **Dias de Inventario Restantes**: {dias_inventario:,.0f} dias  
+        - **Mínimo de Grps**: {grps_min:,.0f}
+        - **Máximo de Grps**: {grps_max:,.0f}
         """)
 
         medios_bajo = grps_actual < (grps_min + grps_max)/2 if grps_actual>0 else 1
@@ -298,7 +300,8 @@ if st.session_state.graficar:
         def modelo_log(x, a, b):
                 return a + b * np.log(x)
         if medios_bajo:
-            st.subheader("📈 Recomendación de Incremento de GRPs")
+            st.markdown("Grps Bajos")
+            st.subheader("Recomendación de Incremento de GRPs")
             
             # Tomamos el último GRPs real como base
             grps_base = grps_actual
@@ -319,7 +322,6 @@ if st.session_state.graficar:
                 'GRPs Simulados': grps_simulados
             })
 
-           
              
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
