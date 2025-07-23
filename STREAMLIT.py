@@ -250,8 +250,8 @@ if st.session_state.graficar:
                     y='independent'
                 ).properties(
                     title=f"Predicción vs Sellout - {prod_sel}",
-                    width=700,
-                    height=400
+                    width=800,
+                    height=500
                 )
 
                 # Mostrar en Streamlit
