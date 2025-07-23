@@ -313,7 +313,9 @@ if st.session_state.graficar:
             })
 
             # Ajustamos una regresión logarítmica con los datos históricos
-            x = resumen_df['Grps'] if resumen_df['Grps'].unique()>0 else 100
+            if resumen_df['Grps'].unique()==0:
+                resumen_df['Grps']=100
+            x = resumen_df['Grps'] 
             y = resumen_df['PREDICCION']
             st.write("Valores usados para ajuste:")
             st.write("GRPs:", x)
