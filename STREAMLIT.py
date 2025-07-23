@@ -300,8 +300,9 @@ if st.session_state.graficar:
         def modelo_log(x, a, b):
                 return a + b * np.log(x)
         if medios_bajo:
-            st.warning("Grps Bajos")
+            
             st.subheader("Recomendación de Incremento de GRPs")
+            st.warning("Grps Bajos")
             
             # Tomamos el último GRPs real como base
             grps_base = grps_actual
@@ -333,8 +334,9 @@ if st.session_state.graficar:
         inventario_bajo = dias_inventario < 30
 
         if inventario_bajo:
-            st.warning("Inventario Bajo")
+            
             st.subheader("Recomendación de Incremento de Inventario")
+            st.warning("Inventario Bajo")
             
             # Tomamos el último GRPs real como base
             inventario_base = inventario_actual
