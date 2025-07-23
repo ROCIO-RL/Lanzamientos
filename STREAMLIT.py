@@ -250,7 +250,7 @@ if st.session_state.graficar:
                     y='independent'
                 ).properties(
                     title=f"Predicción vs Sellout - {prod_sel}",
-                    width=900,
+                    width=1000,
                     height=400
                 )
 
