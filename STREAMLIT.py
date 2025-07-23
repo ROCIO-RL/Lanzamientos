@@ -263,7 +263,7 @@ if st.session_state.graficar:
     # Mostrar solo si el estado está activado
     if st.session_state.mostrar_resumen:
         
-        resumen_df = df_plot.copy()
+        resumen_df = df_resultado.copy()
 
         promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else 0
         promedio_pred = resumen_df['PREDICCION'].mean()
