@@ -149,3 +149,77 @@
         st.plotly_chart(fig, use_container_width=True, key=f"plotly_{st.session_state.metric_display}")
 
 
+st.subheader("Recomendaciones")
+        alertas = []
+
+        if sem_inventario < 3:
+            if sem_inventario==0:
+                alertas.append(f"⚠️ **Inventario agotado**")
+            else:
+                alertas.append(f"⚠️ **Inventario bajo**: {sem_inventario:.1f} semanas de cobertura.")
+        if grps_actual < (grps_min + grps_max)/2:
+            alertas.append("⚠️ **GRPs por debajo del promedio**: podrías necesitar más inversión publicitaria.")
+        if sellout_base < ventas_promedio_base:
+            alertas.append("⚠️ **Sellout por debajo del promedio**")
+        if not alertas:
+            alertas.append("✅ Todo está en niveles óptimos.")
+
+        for alerta in alertas:
+            st.markdown(alerta)
+
+        st.subheader("Selecciona variable a visualizar")
+        col1, col2, col3 = st.columns(3)
+
+        
+
+        if "metric_display" not in st.session_state:
+            st.session_state.metric_display = "GRPs"
+
+        with col1:
+            if st.button("Ventas"):
+                st.session_state.metric_display = "Ventas"
+
+        with col2:
+            if st.button("Inventario"):
+                st.session_state.metric_display = "Inventario"
+
+        with col3:
+            if st.button("GRPs"):
+                st.session_state.metric_display = "GRPs"
+
+        # Asignar variable
+        if st.session_state.metric_display == "Ventas":
+            #valor = promedio_real if promedio_real > 0 else promedio_pred
+            valor = sellout_base
+            rango_min = resumen_df[['SELLOUT', 'PREDICCION']].min().min()
+            rango_max = resumen_df[['SELLOUT', 'PREDICCION']].max().max()
+            titulo = "Ventas promedio"
+
+        elif st.session_state.metric_display == "Inventario":
+            valor = inventario_actual
+            rango_min = resumen_df['Inventario'].min()
+            rango_max = resumen_df['Inventario'].max()
+            titulo = "Inventario"
+
+        else:
+            #valor = resumen_df['Grps'].iloc[-1]
+            valor = grps_actual
+            rango_min = resumen_df['Grps'].min()
+            rango_max = resumen_df['Grps'].max()
+            titulo = "Nivel de GRPs"
+
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=valor,
+            title={'text': titulo},
+            gauge={
+                'axis': {'range': [rango_min, rango_max]},
+                'bar': {'color': "darkblue"},
+                'steps': [
+                    {'range': [rango_min, (rango_min + rango_max)/2], 'color': "lightgray"},
+                    {'range': [(rango_min + rango_max)/2, rango_max], 'color': "lightgreen"},
+                ]
+            }
+        ))
+
+        st.plotly_chart(fig, use_container_width=True, key=f"plotly_{st.session_state.metric_display}")
