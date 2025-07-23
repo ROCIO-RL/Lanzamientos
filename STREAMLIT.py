@@ -301,7 +301,14 @@ if st.session_state.graficar:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
             # Tomamos el último GRPs real como base
-            grps_base = grps_actual if grps_actual>0 else 100
+            grps_base = grps_actual
+
+            # Ajustamos una regresión logarítmica con los datos históricos
+            if grps_actual==0:
+                resumen_df['Grps']=100
+                grps_base=100
+            x = resumen_df['Grps'] 
+            y = resumen_df['PREDICCION']
 
             # Simulamos incrementos de 10% a 100%
             incrementos = np.arange(0.1, 1.1, 0.1)
@@ -312,11 +319,7 @@ if st.session_state.graficar:
                 'GRPs Simulados': grps_simulados
             })
 
-            # Ajustamos una regresión logarítmica con los datos históricos
-            if resumen_df['Grps'].unique()==0:
-                resumen_df['Grps']=100
-            x = resumen_df['Grps'] 
-            y = resumen_df['PREDICCION']
+           
              
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
