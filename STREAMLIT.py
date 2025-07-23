@@ -299,12 +299,8 @@ if st.session_state.graficar:
         if inventario_bajo:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
-
-            
-
-
             # Tomamos el último GRPs real como base
-            grps_base = grps_actual if grps_actual > 0 else 100
+            grps_base = grps_actual 
 
             # Simulamos incrementos de 10% a 100%
             incrementos = np.arange(0.1, 1.1, 0.1)
@@ -321,7 +317,7 @@ if st.session_state.graficar:
             st.write("Valores usados para ajuste:")
             st.write("GRPs:", x)
             st.write("Predicción:", y)
-            if len(x) < 3:
+            if len(x) < 3 or grps_base==0:
                 st.warning("⚠️ Datos insuficientes para ajustar el modelo. Se usará una estimación proporcional como referencia.")
 
                 base_grps = grps_actual if grps_actual > 0 else 1
