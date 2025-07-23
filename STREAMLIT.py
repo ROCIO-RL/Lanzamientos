@@ -325,7 +325,8 @@ if st.session_state.graficar:
                 base_pred = sellout_pred_actual
                 x = sim_df['GRPs Simulados']
                 sim_df['Predicción Estimada'] = sim_df['GRPs Simulados'].apply(lambda g: base_pred * g / base_grps)
-                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
+                #params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
+                params, _ = curve_fit(modelo_log, x, y)
                 sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
                 st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
                 st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
