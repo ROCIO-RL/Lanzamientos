@@ -229,7 +229,7 @@ if st.session_state.graficar:
 
 
 
-                # Línea punteada para temperatura con eje secundario a la derecha
+                # Línea punteada para temperatura (sin 'name')
                 line = alt.Chart(df_melt).mark_line(
                     strokeDash=[4, 4],
                     color='black'
@@ -237,7 +237,7 @@ if st.session_state.graficar:
                     x=alt.X('SemNumero:O'),
                     y=alt.Y('TEMPERATURA:Q',
                             axis=alt.Axis(title='Temperatura (°C)', orient='right'),
-                            scale=alt.Scale(name='temp_scale')
+                            scale=alt.Scale(zero=False)  # Opcional: ajusta el eje si no quieres que arranque en 0
                     ),
                     tooltip=[alt.Tooltip('TEMPERATURA:Q', title='Temperatura')]
                 )
@@ -256,6 +256,7 @@ if st.session_state.graficar:
 
                 # Mostrar en Streamlit
                 st.altair_chart(chart_combinado, use_container_width=True)
+
 
 
 
