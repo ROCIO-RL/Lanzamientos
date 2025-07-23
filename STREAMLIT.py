@@ -300,7 +300,7 @@ if st.session_state.graficar:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
             # Tomamos el último GRPs real como base
-            grps_base = grps_actual if grps_actual>0 else 100
+            grps_base = grps_actual if grps_actual>0 else 1
 
             # Simulamos incrementos de 10% a 100%
             incrementos = np.arange(0.1, 1.1, 0.1)
