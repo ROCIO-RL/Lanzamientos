@@ -320,17 +320,6 @@ if st.session_state.graficar:
             st.write("Valores usados para ajuste:")
             st.write("GRPs:", x)
             st.write("Predicción:", y)
-            if len(x) < 3 or grps_actual==0:
-                st.warning("⚠️ Datos insuficientes para ajustar el modelo. Se usará una estimación proporcional como referencia.")
-
-                base_grps = grps_actual if grps_actual > 0 else 1
-                base_pred = sellout_pred_actual
-                x = sim_df['GRPs Simulados']
-                sim_df['Predicción Estimada'] = sim_df['GRPs Simulados'].apply(lambda g: base_pred * g / base_grps)
-                st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
-                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
-            # Para regresión logarítmica: y = a + b*log(x)
-            
             
             
             try:
