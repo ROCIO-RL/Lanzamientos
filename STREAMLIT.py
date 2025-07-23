@@ -7,6 +7,7 @@ import subprocess
 import sys
 import plotly.graph_objects as go
 import tempfile
+import numpy as np
 
 marcas_porcentajes = {
     'AFFAIR': {'Benavides': 0.00, 'Chedraui': 1.00, 'Soriana': 0.00, 'Walmart': 0.00},
@@ -288,8 +289,46 @@ if st.session_state.graficar:
         - **Unidades Reales Promedio**: {promedio_real:,.0f}  
         - **Unidades Pronosticadas Promedio**: {promedio_pred:,.0f}  
         - **Inventario Restante**: {inventario_actual:,.0f}  
-        - **Dias de Inventario Restantes**: {sem_inventario:,.0f} dias  
+        - **Dias de Inventario Restantes**: {dias_inventario:,.0f} dias  
         """)
+        inventario_bajo = dias_inventario < 14  # menos de 2 semanas
+
+
+        if inventario_bajo:
+            st.subheader("📈 Recomendación de Incremento de GRPs")
+            
+            # Tomamos el último GRPs real como base
+            grps_base = grps_actual
+
+            # Simulamos incrementos de 10% a 100%
+            incrementos = np.arange(0.1, 1.1, 0.1)
+            grps_simulados = grps_base * (1 + incrementos)
+
+            # Creamos un DataFrame para registrar simulaciones
+            sim_df = pd.DataFrame({
+                'GRPs Simulados': grps_simulados
+            })
+
+            # Ajustamos una regresión logarítmica con los datos históricos
+            x = resumen_df['Grps']
+            y = resumen_df['PREDICCION']
+            
+            # Para regresión logarítmica: y = a + b*log(x)
+            from scipy.optimize import curve_fit
+            def modelo_log(x, a, b):
+                return a + b * np.log(x)
+            
+            try:
+                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
+                sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
+                
+                st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
+
+                st.markdown("Puedes usar estos valores para probar cómo afectaría el aumento de GRPs a las unidades desplazadas según el modelo logarítmico.")
+            except Exception as e:
+                st.warning("No se pudo ajustar el modelo logarítmico: " + str(e))
+
+
 
 
         
