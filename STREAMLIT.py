@@ -293,11 +293,11 @@ if st.session_state.graficar:
         - **Dias de Inventario Restantes**: {dias_inventario:,.0f} dias  
         """)
 
-        inventario_bajo = dias_inventario < 14  # menos de 2 semanas
+        medios_bajo = grps_actual < (grps_min + grps_max)/2 if grps_actual>0 else 1
 
         def modelo_log(x, a, b):
                 return a + b * np.log(x)
-        if inventario_bajo:
+        if medios_bajo:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
             # Tomamos el último GRPs real como base
@@ -317,11 +317,7 @@ if st.session_state.graficar:
                 resumen_df['Grps']=100
             x = resumen_df['Grps'] 
             y = resumen_df['PREDICCION']
-            st.write("Valores usados para ajuste:")
-            st.write("GRPs:", x)
-            st.write("Predicción:", y)
-            
-            
+             
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
                 sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
