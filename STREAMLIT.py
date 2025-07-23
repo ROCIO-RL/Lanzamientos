@@ -232,7 +232,7 @@ if st.session_state.graficar:
                 # Línea punteada para temperatura (sin 'name')
                 line = alt.Chart(df_melt).mark_line(
                     strokeDash=[4, 4],
-                    color='black'
+                    color='purple'
                 ).encode(
                     x=alt.X('SemNumero:O'),
                     y=alt.Y('TEMPERATURA:Q',
