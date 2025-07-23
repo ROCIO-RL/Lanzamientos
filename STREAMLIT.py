@@ -299,6 +299,10 @@ if st.session_state.graficar:
         if inventario_bajo:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
+
+            
+
+
             # Tomamos el último GRPs real como base
             grps_base = grps_actual if grps_actual > 0 else 100
 
@@ -317,11 +321,18 @@ if st.session_state.graficar:
             st.write("Valores usados para ajuste:")
             st.write("GRPs:", x)
             st.write("Predicción:", y)
-            
+            if len(x) < 3:
+                st.warning("⚠️ Datos insuficientes para ajustar el modelo. Se usará una estimación proporcional como referencia.")
+
+                base_grps = grps_actual if grps_actual > 0 else 1
+                base_pred = sellout_pred_actual
+
+                sim_df['Predicción Estimada'] = sim_df['GRPs Simulados'].apply(lambda g: base_pred * g / base_grps)
+                st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
             # Para regresión logarítmica: y = a + b*log(x)
             
             def modelo_log(x, a, b):
-                return a + b * np.log1p(x)
+                return a + b * np.log(x)
             
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
