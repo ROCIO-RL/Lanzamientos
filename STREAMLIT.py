@@ -321,7 +321,7 @@ if st.session_state.graficar:
             # Para regresión logarítmica: y = a + b*log(x)
             
             def modelo_log(x, a, b):
-                return a + b * np.log(x)
+                return a + b * np.log1p(x)
             
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
