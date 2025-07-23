@@ -295,7 +295,8 @@ if st.session_state.graficar:
 
         inventario_bajo = dias_inventario < 14  # menos de 2 semanas
 
-
+        def modelo_log(x, a, b):
+                return a + b * np.log(x)
         if inventario_bajo:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
@@ -324,11 +325,13 @@ if st.session_state.graficar:
                 base_pred = sellout_pred_actual
 
                 sim_df['Predicción Estimada'] = sim_df['GRPs Simulados'].apply(lambda g: base_pred * g / base_grps)
+                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
+                sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
                 st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
+                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
             # Para regresión logarítmica: y = a + b*log(x)
             
-            def modelo_log(x, a, b):
-                return a + b * np.log(x)
+            
             
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
