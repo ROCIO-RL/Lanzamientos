@@ -237,7 +237,7 @@ if st.session_state.graficar:
                     x=alt.X('SemNumero:O'),
                     y=alt.Y('TEMPERATURA:Q',
                             axis=alt.Axis(title='Temperatura', orient='right'),
-                            scale=alt.Scale(zero=False)  # Opcional: ajusta el eje si no quieres que arranque en 0
+                            scale=alt.Scale(zero=True)  # Opcional: ajusta el eje si no quieres que arranque en 0
                     ),
                     tooltip=[alt.Tooltip('TEMPERATURA:Q', title='Temperatura')]
                 )
