@@ -228,7 +228,7 @@ if st.session_state.graficar:
                 st.altair_chart(chart, use_container_width=True)
 
 
-
+                print(df_melt['TEMPERATURA'])
 
                 # Gráfico de barras para Unidades
                 bar_chart = alt.Chart(df_melt).mark_bar().encode(
@@ -252,7 +252,7 @@ if st.session_state.graficar:
                     strokeDash=[4, 4], color='red'
                 ).encode(
                     x=alt.X('SemNumero:O'),
-                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='left')),
+                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='right')),
                     tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura')]
                 )
 
