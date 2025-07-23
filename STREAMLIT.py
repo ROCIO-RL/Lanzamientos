@@ -292,6 +292,7 @@ if st.session_state.graficar:
         - **Inventario Restante**: {inventario_actual:,.0f}  
         - **Dias de Inventario Restantes**: {dias_inventario:,.0f} dias  
         """)
+
         inventario_bajo = dias_inventario < 14  # menos de 2 semanas
 
 
@@ -299,7 +300,7 @@ if st.session_state.graficar:
             st.subheader("📈 Recomendación de Incremento de GRPs")
             
             # Tomamos el último GRPs real como base
-            grps_base = grps_actual
+            grps_base = grps_actual if grps_actual > 0 else 100
 
             # Simulamos incrementos de 10% a 100%
             incrementos = np.arange(0.1, 1.1, 0.1)
@@ -325,7 +326,7 @@ if st.session_state.graficar:
                 
                 st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
 
-                st.markdown("Puedes usar estos valores para probar cómo afectaría el aumento de GRPs a las unidades desplazadas según el modelo logarítmico.")
+                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
             except Exception as e:
                 st.warning("No se pudo ajustar el modelo logarítmico: " + str(e))
 
