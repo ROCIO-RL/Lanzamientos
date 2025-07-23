@@ -121,7 +121,7 @@ if st.session_state.graficar:
     if os.path.exists("PRONOSTICO_PRUEBAS.xlsx"):
         df_resultado = pd.read_excel("PRONOSTICO_PRUEBAS.xlsx")
 
-        required_cols = ['SemNumero', 'Producto', 'INVENTARIO_TOTAL', 'PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps']
+        required_cols = ['SemNumero', 'Producto', 'INVENTARIO_TOTAL', 'PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA']
         if set(required_cols).issubset(df_resultado.columns):
 
             productos = df_resultado['Producto'].unique()
@@ -130,7 +130,7 @@ if st.session_state.graficar:
             df_filtro = df_resultado[df_resultado['Producto'] == prod_sel].copy()
             df_filtro.sort_values(by='SemNumero', inplace=True)
 
-            df_plot = df_filtro[['SemNumero', 'Producto',  'INVENTARIO_TOTAL','PRECIO_PROMEDIO',	'Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps']].copy()
+            df_plot = df_filtro[['SemNumero', 'Producto',  'INVENTARIO_TOTAL','PRECIO_PROMEDIO',	'Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA']].copy()
             df_plot = df_plot.rename(columns={'Predicción Unidades Desplazadas': 'PREDICCION',
                                   'INVENTARIO_TOTAL':'Inventario',
                                   'PRECIO_PROMEDIO': 'Precio',
@@ -174,6 +174,7 @@ if st.session_state.graficar:
                     df_pred_stack.loc[mask, 'Sucursales'] = df_plot[f'Sucursales {grupo}'].values
                     df_pred_stack.loc[mask,'Inventario'] = df_plot['Inventario'].values
                     df_pred_stack.loc[mask,'Grps'] = df_plot['Grps'].values
+                    df_pred_stack.loc[mask,','TEMPERATURA''] = df_plot[','TEMPERATURA''].values
 
                 df_sellout = df_plot[['SemNumero', 'SELLOUT']].copy()
                 df_sellout = df_sellout.rename(columns={'SELLOUT': 'Unidades'})
@@ -184,6 +185,7 @@ if st.session_state.graficar:
                 df_sellout['Sucursales'] = df_plot['Sucursales']
                 df_sellout['Inventario'] = df_plot['Inventario'].values
                 df_sellout['Grps'] = df_plot['Grps'].values
+                df_sellout['TEMPERATURA'] = df_plot['TEMPERATURA'].values
 
                 df_melt = pd.concat([df_pred_stack, df_sellout], ignore_index=True)
 
@@ -224,6 +226,46 @@ if st.session_state.graficar:
                 )
 
                 st.altair_chart(chart, use_container_width=True)
+
+
+
+
+                # Gráfico de barras (Unidades)
+                bar_chart = alt.Chart(df_melt).mark_bar().encode(
+                    x=alt.X('SemNumero:O', title='Semana'),
+                    xOffset='Tipo:N',
+                    y=alt.Y('Unidades:Q', title='Unidades'),
+                    color=alt.Color('Grupo:N', scale=alt.Scale(scheme='category10')),
+                    tooltip=[
+                        'Tipo', 'Grupo', 'SemNumero',
+                        alt.Tooltip('Unidades:Q', format=',.0f', title='Forecast Unidades'),
+                        alt.Tooltip('Monto:Q', format='$,.2f', title='Forecast Monto'),
+                        alt.Tooltip('Inventario:Q', format=',.0f', title='Inventario Total'),
+                        alt.Tooltip('Precio:Q', format='$,.2f', title='Precio'),
+                        alt.Tooltip('Sucursales:Q', format=',.0f', title='Sucursales'),
+                        alt.Tooltip('Grps:Q', format=',.0f', title='Grps')
+                    ]
+                )
+
+                # Gráfico de línea (Temperatura)
+                line_chart = alt.Chart(df_melt).mark_line(strokeDash=[4, 4], color='black').encode(
+                    x='SemNumero:O',
+                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='right')),
+                    tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura')]
+                )
+
+                # Combinar ambos gráficos
+                combined_chart = alt.layer(bar_chart, line_chart).resolve_scale(
+                    y='independent'  # para tener 2 ejes Y independientes
+                ).properties(
+                    title=f"Predicción vs Sellout - {prod_sel}",
+                    width=700,
+                    height=400
+                )
+
+                # Mostrar en Streamlit
+                st.altair_chart(combined_chart, use_container_width=True)
+
             else:
                 st.warning("No se encontró una marca coincidente en el producto.")
 
@@ -291,8 +333,7 @@ if st.session_state.graficar:
         - **Unidades Pronosticadas Promedio**: {promedio_pred:,.0f}  
         - **Inventario Restante**: {inventario_actual:,.0f}  
         - **Dias de Inventario Restantes**: {dias_inventario:,.0f} dias  
-        - **Mínimo de Grps**: {grps_min:,.0f}
-        - **Máximo de Grps**: {grps_max:,.0f}
+        - **Grps**: {grps_actual:,.0f}
         """)
 
         medios_bajo = grps_actual < (grps_min + grps_max)/2 if grps_actual>0 else 1
