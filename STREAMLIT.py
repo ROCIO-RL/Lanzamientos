@@ -230,7 +230,7 @@ if st.session_state.graficar:
 
 
 
-                # Gráfico de barras (Unidades)
+                # Gráfico de barras para Unidades
                 bar_chart = alt.Chart(df_melt).mark_bar().encode(
                     x=alt.X('SemNumero:O', title='Semana'),
                     xOffset='Tipo:N',
@@ -247,16 +247,18 @@ if st.session_state.graficar:
                     ]
                 )
 
-                # Gráfico de línea (Temperatura)
-                line_chart = alt.Chart(df_melt).mark_line(strokeDash=[4, 4], color='red').encode(
-                    x='SemNumero:O',
-                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura', orient='right')),
+                # Gráfico de línea punteada para Temperatura con eje secundario
+                line_chart = alt.Chart(df_melt).mark_line(
+                    strokeDash=[4, 4], color='black'
+                ).encode(
+                    x=alt.X('SemNumero:O'),
+                    y=alt.Y('Temperatura:Q', axis=alt.Axis(title='Temperatura (°C)', orient='right')),
                     tooltip=[alt.Tooltip('Temperatura:Q', title='Temperatura')]
                 )
 
-                # Combinar ambos gráficos
+                # Combinar ambos gráficos con ejes Y independientes
                 combined_chart = alt.layer(bar_chart, line_chart).resolve_scale(
-                    y='independent'  # para tener 2 ejes Y independientes
+                    y='independent'
                 ).properties(
                     title=f"Predicción vs Sellout - {prod_sel}",
                     width=700,
