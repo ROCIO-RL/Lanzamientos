@@ -71,7 +71,7 @@ def obtener_porcentajes(producto):
     return None 
 
 
-columnas = ['SEMANAGLI','SKU','Producto','Clasificacion','INVENTARIO_TOTAL','PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT_SP','Grps','SELLOUT']
+columnas = ['SEMANAGLI','SKU','Producto','Clasificacion','INVENTARIO_TOTAL','PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT_SP','Grps','SELLOUT','TEMPERATURA']
 st.title("MODELO LANZAMIENTOS")
 st.write("La información debe ser en base a los grupos: Soriana, Benavides,Wal-Mart de México,Chedraui")
 st.subheader("Cargar Excel")

@@ -55,7 +55,8 @@ for col in columnas_necesarias:
 #print(df_final)
 
 if not os.path.exists("model.pkl"):
-    file_id = "15ImIkHF8yTPiADAqlWRzZM_hMoBLvX99"  
+    file_id = "15ImIkHF8yTPiADAqlWRzZM_hMoBLvX99" 
+    file_id = "1AzkSITfQ32OqxsRpixOtjdXwWQaHiTHi" 
     url = f"https://drive.google.com/uc?id={file_id}"
     gdown.download(url, "model.pkl", quiet=False)
 
@@ -65,7 +66,7 @@ best_model = joblib.load(doc_model)
 X = ['Clasificacion_Crema', 'Clasificacion_Cuidado cabello',
        'Clasificacion_Jabon', 'Clasificacion_Rastrillos',
        'Clasificacion_Tratamiento capilar', 'Grps', 'INVENTARIO_TOTAL',
-       'PRECIO_PROMEDIO', 'SELLOUT_SP', 'SUCURSALES_TOTAL', 'SemNumero']
+       'PRECIO_PROMEDIO', 'SELLOUT_SP', 'SUCURSALES_TOTAL', 'SemNumero','TEMPERATURA']
 
 df = df_final.copy()
 pronosticos = []
