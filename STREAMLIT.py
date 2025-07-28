@@ -371,13 +371,12 @@ if st.session_state.graficar:
             except Exception as e:
                 st.markdown("")
             # Título o instrucción
-            st.write("Por favor, ingresa un número entero entre 0 y 26:")
+            st.write("Si deseas conocer el inventario necesario para un numero de semanas ingresa las semanas deseadas:")
 
-            # Recuadro para número entero
-            numero = st.number_input("Número", min_value=0, max_value=26, step=1)
+            numero_semanas = st.number_input("Número", min_value=0, max_value=26, step=1)
 
             # Mostrar el valor ingresado (opcional)
-            st.write(f"Has ingresado el número: {int(numero)}")
+            st.write(f"Has ingresado el número: {int(numero_semanas*promedio_pred)}")
 
         if medios_bajo:
             
