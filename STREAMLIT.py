@@ -327,8 +327,8 @@ if st.session_state.graficar:
         st.subheader("Resumen")
         st.markdown(f"""
         - **Periodo:** semana {semana_actual:,.0f} 
-        - **Unidades Semanales Reales Promedio**: {promedio_real:,.0f}  
         - **Unidades Semanales Pronosticadas Promedio**: {promedio_pred:,.0f}  
+        - **Unidades Semanales Reales Promedio**: {promedio_real:,.0f}  
         - **Dias de Inventario Restantes**: {dias_inventario:,.0f} dias  
         - **Inventario Restante**: {inventario_actual:,.0f}   
         - **Grps Actuales**: {grps_actual:,.0f}
