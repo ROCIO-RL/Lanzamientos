@@ -340,7 +340,7 @@ if st.session_state.graficar:
             
             st.subheader("Recomendación de Incremento de Inventario")
             st.warning("Inventario Bajo")
-            
+
             # Tomamos el último GRPs real como base
             inventario_base = inventario_actual
 
@@ -367,6 +367,14 @@ if st.session_state.graficar:
                 st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de Inventario a las unidades desplazadas ")
             except Exception as e:
                 st.markdown("")
+            # Título o instrucción
+            st.write("Por favor, ingresa un número entero entre 0 y 26:")
+
+            # Recuadro para número entero
+            numero = st.number_input("Número", min_value=0, max_value=26, step=1)
+
+            # Mostrar el valor ingresado (opcional)
+            st.write(f"Has ingresado el número: {int(numero)}")
 
         if medios_bajo:
             
