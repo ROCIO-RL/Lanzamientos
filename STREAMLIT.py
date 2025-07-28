@@ -377,7 +377,7 @@ if st.session_state.graficar:
 
             # Mostrar el valor ingresado (opcional)
             st.write(f"Has ingresado el número: {int(numero_semanas*promedio_pred)}")
-            st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de Inventario a las unidades desplazadas ")
+            st.markdown("Puedes usar los valores recomendados en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de Inventario a las unidades desplazadas ")
 
         if medios_bajo:
             
