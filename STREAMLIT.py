@@ -321,14 +321,17 @@ if st.session_state.graficar:
         grps_max = resumen_df['Grps'].max()
         grps_actual = resumen_df['Grps'].iloc[-1]  # Última semana
 
+        semana_actual = resumen_df['SemNumero'].iloc[-1]  # Última semana
+
 
         st.subheader("Resumen")
         st.markdown(f"""
-        - **Unidades Reales Promedio**: {promedio_real:,.0f}  
-        - **Unidades Pronosticadas Promedio**: {promedio_pred:,.0f}  
+        - **Periodo:** semana {semana_actual:,.0f} 
+        - **Unidades Semanales Reales Promedio**: {promedio_real:,.0f}  
+        - **Unidades Semanales Pronosticadas Promedio**: {promedio_pred:,.0f}  
         - **Inventario Restante**: {inventario_actual:,.0f}  
         - **Dias de Inventario Restantes**: {dias_inventario:,.0f} dias  
-        - **Grps**: {grps_actual:,.0f}
+        - **Grps Actuales**: {grps_actual:,.0f}
         """)
 
         medios_bajo = grps_actual < (grps_min + grps_max)/2 if grps_actual>0 else 1
