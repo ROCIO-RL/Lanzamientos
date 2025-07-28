@@ -332,43 +332,10 @@ if st.session_state.graficar:
         """)
 
         medios_bajo = grps_actual < (grps_min + grps_max)/2 if grps_actual>0 else 1
+        inventario_bajo = dias_inventario < 30
 
         def modelo_log(x, a, b):
                 return a + b * np.log(x)
-        if medios_bajo:
-            
-            st.subheader("Recomendación de Incremento de GRPs")
-            st.warning("Grps Bajos")
-            
-            # Tomamos el último GRPs real como base
-            grps_base = grps_actual
-
-            # Ajustamos una regresión logarítmica con los datos históricos
-            if grps_actual==0:
-                resumen_df['Grps']=100
-                grps_base=100
-            x = resumen_df['Grps'] 
-            y = resumen_df['PREDICCION']
-
-            # Simulamos incrementos de 10% a 100%
-            incrementos = np.arange(0.1, 1.1, 0.1)
-            grps_simulados = grps_base * (1 + incrementos)
-
-            # Creamos un DataFrame para registrar simulaciones
-            sim_df = pd.DataFrame({
-                'GRPs Simulados': grps_simulados
-            })
-    
-            try:
-                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
-                sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
-                st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
-                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
-            except Exception as e:
-                st.markdown("")
-
-        inventario_bajo = dias_inventario < 30
-
         if inventario_bajo:
             
             st.subheader("Recomendación de Incremento de Inventario")
@@ -401,6 +368,40 @@ if st.session_state.graficar:
             except Exception as e:
                 st.markdown("")
 
+        if medios_bajo:
+            
+            st.subheader("Recomendación de Incremento de GRPs")
+            st.warning("Grps Bajos")
+            
+            # Tomamos el último GRPs real como base
+            grps_base = grps_actual
+
+            # Ajustamos una regresión logarítmica con los datos históricos
+            if grps_actual==0:
+                resumen_df['Grps']=100
+                grps_base=100
+            x = resumen_df['Grps'] 
+            y = resumen_df['PREDICCION']
+
+            # Simulamos incrementos de 10% a 100%
+            incrementos = np.arange(0.1, 1.1, 0.1)
+            grps_simulados = grps_base * (1 + incrementos)
+
+            # Creamos un DataFrame para registrar simulaciones
+            sim_df = pd.DataFrame({
+                'GRPs Simulados': grps_simulados
+            })
+    
+            try:
+                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
+                sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
+                st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
+                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
+            except Exception as e:
+                st.markdown("")
+
+       
+        
 
 
 
