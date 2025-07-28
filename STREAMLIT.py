@@ -367,7 +367,7 @@ if st.session_state.graficar:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  
                 sim_df['Predicción Estimada'] = modelo_log(sim_df['Inventario Simulado'], *params)
                 st.dataframe(sim_df.style.format({"Inventario Simulado": "{:,.0f}", "Predicción Estimada": "{:,.0f}"}))
-                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de Inventario a las unidades desplazadas ")
+                
             except Exception as e:
                 st.markdown("")
             # Título o instrucción
@@ -377,6 +377,7 @@ if st.session_state.graficar:
 
             # Mostrar el valor ingresado (opcional)
             st.write(f"Has ingresado el número: {int(numero_semanas*promedio_pred)}")
+            st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de Inventario a las unidades desplazadas ")
 
         if medios_bajo:
             
