@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import tempfile
 import numpy as np
 from scipy.optimize import curve_fit
-
+#continua
 marcas_porcentajes = {
     'AFFAIR': {'Benavides': 0.00, 'Chedraui': 1.00, 'Soriana': 0.00, 'Walmart': 0.00},
     'ALERT': {'Benavides': 0.00, 'Chedraui': 0.2669, 'Soriana': 0.3410, 'Walmart': 0.3921},
