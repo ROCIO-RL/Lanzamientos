@@ -119,14 +119,23 @@ if st.session_state.graficar:
 
 
     if os.path.exists("PRONOSTICO_PRUEBAS.xlsx"):
+        # BOTÓN PARA DESCARGAR
+        with open("PRONOSTICO_PRUEBAS.xlsx", "rb") as f:
+            st.download_button(
+                label="📥 Descargar PRONOSTICO_PRUEBAS.xlsx",
+                data=f,
+                file_name="PRONOSTICO_PRUEBAS.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
         df_resultado = pd.read_excel("PRONOSTICO_PRUEBAS.xlsx")
+
 
         required_cols = ['SemNumero', 'Producto', 'INVENTARIO_TOTAL', 'PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA']
         if set(required_cols).issubset(df_resultado.columns):
 
             productos = df_resultado['Producto'].unique()
             prod_sel = st.selectbox("Selecciona un Producto:", productos)
-
+            
             df_filtro = df_resultado[df_resultado['Producto'] == prod_sel].copy()
             df_filtro.sort_values(by='SemNumero', inplace=True)
 
