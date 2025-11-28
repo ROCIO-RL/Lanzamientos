@@ -10,6 +10,14 @@ import tempfile
 import numpy as np
 from scipy.optimize import curve_fit
 #continua
+
+pesos_negocio = {
+    'Walmart': 0.2345,
+    'Chedraui': 0.0662,
+    'Soriana': 0.0984,
+    'Benavides': 0.022
+}
+
 marcas_porcentajes = {
     'AFFAIR': {'Benavides': 0.00, 'Chedraui': 1.00, 'Soriana': 0.00, 'Walmart': 0.00},
     'ALERT': {'Benavides': 0.00, 'Chedraui': 0.2669, 'Soriana': 0.3410, 'Walmart': 0.3921},
@@ -73,7 +81,7 @@ def obtener_porcentajes(producto):
     return None 
 
 
-columnas = ['SEMANAGLI','SKU','Producto','Clasificacion','INVENTARIO_TOTAL','PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT_SP','Grps','SELLOUT','TEMPERATURA']
+columnas = ['SEMANAGLI','SKU','Producto','Clasificacion','INVENTARIO_TOTAL','PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT_SP','Grps','SELLOUT','TEMPERATURA','Costo']
 st.title("MODELO LANZAMIENTOS")
 st.write("La información debe ser en base a los grupos: Soriana, Benavides,Wal-Mart de México,Chedraui")
 st.subheader("Cargar Excel")
@@ -93,12 +101,13 @@ if archivo:
 if st.button("Ejecutar Modelo"):
     try:
         st.session_state.tabla_datos.to_excel("LAYOUTPRUEBAS.xlsx", sheet_name='Datos',index=False)
-        st.success("Archivo guardado exitosamente como LAYOUTPRUEBAS.xlsx")
+        #st.success("Archivo guardado exitosamente como LAYOUTPRUEBAS.xlsx")
     except Exception as e:
-        st.error(f"Error al guardar archivo: {e}")
+        st.error(f"Error en el archivo: {e}")
 
     if not os.path.exists("LAYOUTPRUEBAS.xlsx"):
-        st.error("No se encuentra el archivo LAYOUTPRUEBAS.xlsx. Guárdalo primero.")
+        #st.error("No se encuentra el archivo LAYOUTPRUEBAS.xlsx. Guárdalo primero.")
+        st.error("Revisar la carga del archivo.")
     else:
         try:
             result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
@@ -119,18 +128,18 @@ if st.session_state.graficar:
 
 
     if os.path.exists("PRONOSTICO_PRUEBAS.xlsx"):
+        costo_grps = 2100
         # BOTÓN PARA DESCARGAR
-        with open("PRONOSTICO_PRUEBAS.xlsx", "rb") as f:
-            st.download_button(
-                label="📥 Descargar PRONOSTICO_PRUEBAS.xlsx",
-                data=f,
-                file_name="PRONOSTICO_PRUEBAS.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        #with open("PRONOSTICO_PRUEBAS.xlsx", "rb") as f:
+        #    st.download_button(
+        #        label="📥 Descargar PRONOSTICO_PRUEBAS.xlsx",
+        #        data=f,
+        #        file_name="PRONOSTICO_PRUEBAS.xlsx",
+        #        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        #    )
         df_resultado = pd.read_excel("PRONOSTICO_PRUEBAS.xlsx")
 
-
-        required_cols = ['SemNumero', 'Producto', 'INVENTARIO_TOTAL', 'PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA']
+        required_cols = ['SemNumero', 'Producto', 'INVENTARIO_TOTAL', 'PRECIO_PROMEDIO','Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA','Costo']
         if set(required_cols).issubset(df_resultado.columns):
 
             productos = df_resultado['Producto'].unique()
@@ -139,7 +148,7 @@ if st.session_state.graficar:
             df_filtro = df_resultado[df_resultado['Producto'] == prod_sel].copy()
             df_filtro.sort_values(by='SemNumero', inplace=True)
 
-            df_plot = df_filtro[['SemNumero', 'Producto',  'INVENTARIO_TOTAL','PRECIO_PROMEDIO',	'Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA']].copy()
+            df_plot = df_filtro[['SemNumero', 'Producto',  'INVENTARIO_TOTAL','PRECIO_PROMEDIO',	'Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA','Costo']].copy()
             df_plot = df_plot.rename(columns={'Predicción Unidades Desplazadas': 'PREDICCION',
                                   'INVENTARIO_TOTAL':'Inventario',
                                   'PRECIO_PROMEDIO': 'Precio',
@@ -167,6 +176,7 @@ if st.session_state.graficar:
                 df_plot['Pred_Chedraui'] = df_plot['PREDICCION'] * porcentajes['Chedraui']
                 df_plot['Pred_Soriana'] = df_plot['PREDICCION'] * porcentajes['Soriana']
                 df_plot['Pred_Walmart'] = df_plot['PREDICCION'] * porcentajes['Walmart']
+               
 
                 df_pred_stack = df_plot.melt(
                     id_vars=['SemNumero'],
@@ -184,6 +194,24 @@ if st.session_state.graficar:
                     df_pred_stack.loc[mask,'Inventario'] = df_plot['Inventario'].values
                     df_pred_stack.loc[mask,'Grps'] = df_plot['Grps'].values
                     df_pred_stack.loc[mask,'TEMPERATURA'] = df_plot['TEMPERATURA'].values
+                    #df_pred_stack.loc[mask, 'Utilidad'] = (df_plot['Precio'].values * df_pred_stack.loc[mask, 'Unidades'])-(df_plot['Costo'].values * df_pred_stack.loc[mask, 'Unidades'])-(costo_grps * df_pred_stack.loc[mask, 'Grps'])
+                    peso_grupo = pesos_negocio.get(grupo, 0)
+                    peso_marca = porcentajes.get(grupo, 0)
+
+                    costo_grps_asignado = (
+                        costo_grps *
+                        df_plot['Grps'].values *
+                        peso_grupo *
+                        peso_marca
+                    )
+
+                    df_pred_stack.loc[mask, 'Utilidad'] = (
+                        (df_plot['Precio'].values * df_pred_stack.loc[mask, 'Unidades'])
+                    - (df_plot['Costo'].values * df_pred_stack.loc[mask, 'Unidades'])
+                    - costo_grps_asignado
+                    )
+
+
 
                 df_sellout = df_plot[['SemNumero', 'SELLOUT']].copy()
                 df_sellout = df_sellout.rename(columns={'SELLOUT': 'Unidades'})
@@ -195,6 +223,28 @@ if st.session_state.graficar:
                 df_sellout['Inventario'] = df_plot['Inventario'].values
                 df_sellout['Grps'] = df_plot['Grps'].values
                 df_sellout['TEMPERATURA'] = df_plot['TEMPERATURA'].values
+                #df_sellout['Utilidad'] = (df_plot['Precio'].values * df_sellout['Unidades'])-(df_plot['Costo'].values * df_sellout['Unidades'])-(costo_grps * df_sellout['Grps'])
+                costo_grps_sellout = 0
+
+                if porcentajes is not None:
+                    for grupo in ['Benavides', 'Chedraui', 'Soriana', 'Walmart']:
+                        peso_grupo = pesos_negocio.get(grupo, 0)
+                        peso_marca = porcentajes.get(grupo, 0)
+                        costo_grps_sellout += (
+                            costo_grps *
+                            df_plot['Grps'].values *
+                            peso_grupo *
+                            peso_marca
+                        )
+
+                df_sellout['Utilidad'] = (
+                    (df_plot['Precio'].values * df_sellout['Unidades'])
+                - (df_plot['Costo'].values * df_sellout['Unidades'])
+                - costo_grps_sellout
+                )
+
+
+
 
                 df_melt = pd.concat([df_pred_stack, df_sellout], ignore_index=True)
 
@@ -221,6 +271,7 @@ if st.session_state.graficar:
                     color=alt.Color('Grupo:N', scale=alt.Scale(scheme='category10')),
                     tooltip=[
                         'Tipo', 'Grupo', 'SemNumero',
+                        alt.Tooltip('Utilidad:Q', format='$,.0f', title='Utilidad'),
                         alt.Tooltip('Unidades:Q', format=',.0f', title='Forecast Unidades'),
                         alt.Tooltip('Monto:Q', format='$,.2f', title='Forecast Monto'),
                         alt.Tooltip('Inventario:Q', format=',.0f', title='Inventario Total'),
@@ -276,7 +327,8 @@ if st.session_state.graficar:
         else:
             st.error("Faltan columnas requeridas.")
     else:
-        st.error("No se encontró el archivo PRONOSTICO_PRUEBAS.xlsx")
+        #st.error("No se encontró el archivo PRONOSTICO_PRUEBAS.xlsx")
+        st.error("Ocurrio un error en la carga del archivo")
 
 
     if os.path.exists("LAYOUTPRUEBAS.xlsx"):
@@ -300,7 +352,8 @@ if st.session_state.graficar:
             except Exception as e:
                 st.error(f"Error al actualizar y ejecutar modelo: {e}")
     else:
-        st.warning("El archivo LAYOUTPRUEBAS.xlsx no se ha generado aún.")
+        #st.warning("El archivo LAYOUTPRUEBAS.xlsx no se ha generado aún.")
+        st.warning("No se ha ejecutado el modelo aún")
 
 
     if "mostrar_resumen" not in st.session_state:
@@ -312,6 +365,7 @@ if st.session_state.graficar:
     if st.session_state.mostrar_resumen:
         
         resumen_df = df_plot.copy()
+        
 
         promedio_real = resumen_df['SELLOUT'].mean() if resumen_df['SELLOUT'].notna().any() else 0
         promedio_pred = resumen_df['PREDICCION'].mean()
@@ -319,6 +373,7 @@ if st.session_state.graficar:
         inventario_actual = resumen_df['Inventario'].iloc[-1]  # Última semana
         sellout_real_actual = resumen_df['SELLOUT'].iloc[-1] if resumen_df['SELLOUT'].notna().any() else 0 # Última semana
         sellout_pred_actual = resumen_df['PREDICCION'].iloc[-1]  # Última semana
+
 
         # Ventas promedio para cálculo de días de inventario
         ventas_promedio_base = promedio_real if promedio_real>0 else promedio_pred
@@ -344,54 +399,16 @@ if st.session_state.graficar:
         """)
 
         medios_bajo = grps_actual < (grps_min + grps_max)/2 if grps_actual>0 else 1
-        inventario_bajo = dias_inventario < 30
+        inventario_bajo = dias_inventario < 42
 
         def modelo_log(x, a, b):
                 return a + b * np.log(x)
-        if inventario_bajo:
-            
-            st.subheader("Recomendación de Incremento de Inventario")
-            st.warning("Inventario Bajo")
-
-            # Tomamos el último GRPs real como base
-            inventario_base = inventario_actual
-
-            # Ajustamos una regresión logarítmica con los datos históricos
-            if inventario_actual==0:
-                resumen_df['Inventario']=1000
-                inventario_base=1000
-            x = resumen_df['Inventario'] 
-            y = resumen_df['PREDICCION']
-
-            # Simulamos incrementos de 10% a 100%
-            incrementos = np.arange(0.1, 1.1, 0.1)
-            inventario_simulados = inventario_base * (1 + incrementos)
-
-            # Creamos un DataFrame para registrar simulaciones
-            sim_df = pd.DataFrame({
-                'Inventario Simulado': inventario_simulados
-            })
-    
-            try:
-                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  
-                sim_df['Predicción Estimada'] = modelo_log(sim_df['Inventario Simulado'], *params)
-                st.dataframe(sim_df.style.format({"Inventario Simulado": "{:,.0f}", "Predicción Estimada": "{:,.0f}"}))
-                
-            except Exception as e:
-                st.markdown("")
-            # Título o instrucción
-            st.write("Si deseas conocer el inventario necesario para un numero de semanas ingresa las semanas deseadas:")
-
-            numero_semanas = st.number_input("Número", min_value=0, max_value=26, step=1)
-
-            # Mostrar el valor ingresado (opcional)
-            st.write(f"Has ingresado el número: {int(numero_semanas*promedio_pred)}")
-            st.markdown("Puedes usar los valores recomendados en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de Inventario a las unidades desplazadas ")
-
+        
         if medios_bajo:
             
             st.subheader("Recomendación de Incremento de GRPs")
-            st.warning("Grps Bajos")
+            #st.warning("Grps Bajos")
+            st.error("🚨 Grps Bajos")
             
             # Tomamos el último GRPs real como base
             grps_base = grps_actual
@@ -415,10 +432,94 @@ if st.session_state.graficar:
             try:
                 params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])  # Solo usar GRPs > 0
                 sim_df['Predicción Estimada'] = modelo_log(sim_df['GRPs Simulados'], *params)
-                st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
-                st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
+                #st.dataframe(sim_df.style.format({"GRPs Simulados": "{:,.1f}", "Predicción Estimada": "{:,.0f}"}))
+                #st.markdown("Puedes usar estos valores en el apartado de **Editar información del Producto** para probar cómo afectaría el aumento de GRPs a las unidades desplazadas ")
+                # Calcular incremento marginal
+                sim_df['Incremento'] = sim_df['Predicción Estimada'].diff()
+
+                # Umbral mínimo de crecimiento aceptable (ajústalo si quieres)
+                umbral = sim_df['Incremento'].max() * 0.15   # 15% del mejor incremento
+
+                # Detectar punto donde ya no conviene seguir invirtiendo
+                punto_optimo = sim_df[sim_df['Incremento'] < umbral].head(1)
+
+                # Si nunca cae por debajo del umbral, usar el máximo
+                if punto_optimo.empty:
+                    punto_optimo = sim_df.tail(1)
+
+                # Extraer valores recomendados
+                grps_recomendado = punto_optimo['GRPs Simulados'].values[0]
+                pred_recomendada = punto_optimo['Predicción Estimada'].values[0]
+
+
+                st.success(f"""
+                 **✅ Recomendación Óptima de GRPs**\n
+                 **GRPs ÓPTIMOS RECOMENDADOS:** {grps_recomendado:,.1f}  
+                 **VENTA ESTIMADA EN ESE NIVEL:** {pred_recomendada:,.0f} unidades  
+
+                El modelo detectó que después de este punto el crecimiento ya no justifica mayor inversión publicitaria.
+                """)
+
+
             except Exception as e:
                 st.markdown("")
+        
+        if inventario_bajo:
+
+            st.subheader("Recomendación de Inventario")
+
+            semanas_cobertura = 6
+
+            # Datos históricos
+            x = resumen_df['SemNumero']
+            y = resumen_df['PREDICCION']
+
+            try:
+                # Ajustar modelo logarítmico semana vs venta
+                params, _ = curve_fit(modelo_log, x[x > 0], y[x > 0])
+
+                # Simular ventas futuras (próximas semanas)
+                ultima_semana = int(x.max())
+                semanas_futuras = np.arange(ultima_semana + 1, ultima_semana + semanas_cobertura + 1)
+
+                # Predicción por semana usando la curva
+                pred_semana = modelo_log(semanas_futuras, *params)
+
+                # Evitar negativos por modelo
+                pred_semana = np.maximum(pred_semana, 0)
+
+                # Demanda acumulada real
+                inventario_necesario = pred_semana.sum()
+
+                # Faltante
+                faltante = inventario_necesario - inventario_actual
+                faltante = max(0, faltante)
+
+                # Mostrar desglose
+                #st.markdown("### 🔍 Demanda proyectada por semana")
+                #for semana, valor in zip(semanas_futuras, pred_semana):
+                #    st.write(f"Semana {int(semana)}: {valor:,.0f} unidades")
+
+                # Mostrar recomendación
+                if faltante > 0:
+                    st.error("🚨 Inventario Insuficiente")
+                    st.success(f"""
+        ✅ **Recomendación de inventario**\n
+        Inventario actual: {inventario_actual:,.0f} unidades  
+        Demanda proyectada 6 semanas: {inventario_necesario:,.0f} unidades  
+        """)
+                else:
+                    st.success("✅ Inventario en nivel óptimo")
+                    st.info(f"""
+        Tienes inventario suficiente para cubrir las próximas 6 semanas según el modelo predictivo.
+
+        Inventario actual: {inventario_actual:,.0f}  
+        Demanda proyectada: {inventario_necesario:,.0f}  
+        """)
+
+            except Exception as e:
+                st.error("No fue posible ajustar un modelo confiable para estimar demanda futura.")
+
 
        
         
