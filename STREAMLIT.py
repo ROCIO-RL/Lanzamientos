@@ -146,6 +146,7 @@ if st.session_state.graficar:
             prod_sel = st.selectbox("Selecciona un Producto:", productos)
             
             df_filtro = df_resultado[df_resultado['Producto'] == prod_sel].copy()
+            #st.markdown(df_filtro)
             df_filtro.sort_values(by='SemNumero', inplace=True)
 
             df_plot = df_filtro[['SemNumero', 'Producto',  'INVENTARIO_TOTAL','PRECIO_PROMEDIO',	'Grupo Benavides','Grupo Chedraui','Grupo Soriana','Wal-Mart de México','SUCURSALES_TOTAL','SELLOUT', 'Predicción Unidades Desplazadas','Grps','TEMPERATURA','Costo']].copy()
@@ -214,6 +215,24 @@ if st.session_state.graficar:
 
 
                 df_sellout = df_plot[['SemNumero', 'SELLOUT']].copy()
+
+                                
+                # Crear columna de diferencia
+                df_sellout['diferente'] = df_sellout['SELLOUT'].ne(df_sellout['SELLOUT'].shift())
+
+                # Contar cuántas veces cambia
+                df_sellout['bloque'] = df_sellout['diferente'].cumsum()
+
+                # Contar ocurrencias dentro de cada bloque
+                df_sellout['repeticion'] = df_sellout.groupby('bloque').cumcount()
+
+                # A partir de la segunda repetición, poner a 0
+                df_sellout.loc[df_sellout['repeticion'] > 0, 'SELLOUT'] = 0
+
+                # Limpiar columnas auxiliares
+                df_sellout.drop(columns=['diferente','bloque','repeticion'], inplace=True)
+
+
                 df_sellout = df_sellout.rename(columns={'SELLOUT': 'Unidades'})
                 df_sellout['Grupo'] = 'Sellout Real'
                 df_sellout['Tipo'] = 'Sellout'
