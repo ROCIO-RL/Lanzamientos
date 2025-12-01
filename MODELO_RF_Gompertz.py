@@ -123,7 +123,8 @@ for col in columnas_necesarias:
 # ---------------------------
 if not os.path.exists(os.path.join(ruta_script, "model.pkl")):
     # Si necesitas cambiar file_id por el real, cámbialo aquí.
-    file_id = "1"
+    file_id = "15ImIkHF8yTPiADAqlWRzZM_hMoBLvX99" 
+    file_id = "1AzkSITfQ32OqxsRpixOtjdXwWQaHiTHi"
     url = f"https://drive.google.com/uc?id={file_id}"
     try:
         gdown.download(url, os.path.join(ruta_script, "model.pkl"), quiet=False)
