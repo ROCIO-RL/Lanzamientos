@@ -110,7 +110,8 @@ if st.button("Ejecutar Modelo"):
         st.error("Revisar la carga del archivo.")
     else:
         try:
-            result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
+            #result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
+            result = subprocess.run([sys.executable, 'MODELO_RF_Gompertz.py'], check=True, capture_output=True, text=True)
             st.success("Modelo ejecutado correctamente.")
             st.text(result.stdout)
         except subprocess.CalledProcessError as e:
@@ -364,7 +365,7 @@ if st.session_state.graficar:
                 df_layout_actualizado = pd.concat([df_layout_actualizado, df_editado], ignore_index=True)
                 # Ejecutar el modelo
                 df_layout_actualizado.to_excel("LAYOUTPRUEBAS.xlsx", sheet_name='Datos',index=False)
-                st.success("Archivo guardado exitosamente como LAYOUTPRUEBAS.xlsx")
+                st.success("Cambios guardados correctamente")
                 result = subprocess.run([sys.executable, 'MODELO.py'], check=True, capture_output=True, text=True)
                 st.success("Modelo ejecutado correctamente.")
                 st.text(result.stdout)
