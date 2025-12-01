@@ -370,4 +370,4 @@ else:
 doc_final = os.path.join(ruta_script, "PRONOSTICO_PRUEBAS.xlsx")
 df_pronostico_total.to_excel(doc_final, index=False)
 
-print(f'Resultados guardados en {doc_final}')
+#print(f'Resultados guardados en {doc_final}')
