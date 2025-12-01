@@ -315,11 +315,11 @@ if st.session_state.graficar:
                     color='red'
                 ).encode(
                     x=alt.X('SemNumero:O'),
-                    y=alt.Y('TEMPERATURA:Q',
-                            axis=alt.Axis(title='Temperatura', orient='right'),
+                    y=alt.Y('Grps:Q',
+                            axis=alt.Axis(title='Grps', orient='right'),
                             scale=alt.Scale(zero=True)  # Opcional: ajusta el eje si no quieres que arranque en 0
                     ),
-                    tooltip=[alt.Tooltip('TEMPERATURA:Q', title='Temperatura')]
+                    tooltip=[alt.Tooltip('Grps:Q', title='Grps')]
                 )
 
                 # Combinar con gráfico de barras
@@ -333,23 +333,16 @@ if st.session_state.graficar:
                     width=800,
                     height=400
                 )
-
                 # Mostrar en Streamlit
                 st.altair_chart(chart_combinado, use_container_width=True)
-
-
-
-
                 
             else:
                 st.warning("No se encontró una marca coincidente en el producto.")
-
         else:
             st.error("Faltan columnas requeridas.")
     else:
         #st.error("No se encontró el archivo PRONOSTICO_PRUEBAS.xlsx")
         st.error("Ocurrio un error en la carga del archivo")
-
 
     if os.path.exists("LAYOUTPRUEBAS.xlsx"):
         df_layout = pd.read_excel("LAYOUTPRUEBAS.xlsx")
@@ -427,9 +420,7 @@ if st.session_state.graficar:
         if medios_bajo:
             
             st.subheader("Recomendación de Incremento de GRPs")
-            #st.warning("Grps Bajos")
             st.error("🚨 Grps Bajos")
-            
             # Tomamos el último GRPs real como base
             grps_base = grps_actual
 

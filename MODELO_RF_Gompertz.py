@@ -9,21 +9,17 @@ from copy import deepcopy
 import numpy as np
 from scipy.optimize import curve_fit
 
-# ---------------------------
 # Rutas y carga de datos
-# ---------------------------
 ruta_script = Path(__file__).resolve().parent
 
 doc_test = os.path.join(ruta_script, "LAYOUTPRUEBAS.xlsx")
 test = pd.read_excel(doc_test, sheet_name='Datos', engine='openpyxl')
 
-# Extraer Año y Semana desde 'SEMANAGLI' (formato esperado: "YYYY-WW" o similar)
+# Extraer Año y Semana desde 'SEMANAGLI' 
 test[['Anio', 'Semana']] = test['SEMANAGLI'].str.split('-', expand=True).astype(int)
 test = test.sort_values(['SKU', 'Anio', 'Semana']).reset_index(drop=True)
 
-# ---------------------------
 # Funciones auxiliares
-# ---------------------------
 def calcular_sem_num_condicional(grupo):
     grupo = grupo.sort_values(['Anio', 'Semana']).copy()
     semanac_actual = None
@@ -78,6 +74,10 @@ def ajustar_gompertz(grupo):
     mu0 = np.mean(diffs) if len(diffs) > 0 else 1.0
     mu0 = max(mu0, 1e-6)
     lamb0 = float(np.mean(x)) if len(x) > 0 else 1.0
+    '''A0 = y.sum() * 1.2
+    mu0 = max(np.mean(np.diff(y)), 0.01)
+    lamb0 = np.median(x)'''
+
 
     try:
         params, _ = curve_fit(
@@ -86,7 +86,7 @@ def ajustar_gompertz(grupo):
             p0=[A0, mu0, lamb0],
             maxfev=20000
         )
-        # Validación simple: parámetros finitos y A>0
+        # Validación parámetros finitos y A>0
         if np.isfinite(params).all() and params[0] > 0:
             return params
         else:
@@ -95,13 +95,12 @@ def ajustar_gompertz(grupo):
         # print(f"Warning ajustar_gompertz: no fue posible ajustar ({e})")
         return None
 
-# ---------------------------
+
 # Preparación de datos
-# ---------------------------
 test = test.reset_index(drop=True)
 test = test.groupby('SKU', group_keys=False).apply(calcular_sem_num_condicional).reset_index(drop=True)
 
-# OneHotEncoding de 'Clasificacion'
+# OneHotEncoding
 enc = OneHotEncoder(sparse_output=False, dtype=int, drop=None)
 X_encoded = enc.fit_transform(test[['Clasificacion']].fillna('NA'))
 cols = enc.get_feature_names_out(['Clasificacion'])
@@ -118,9 +117,8 @@ for col in columnas_necesarias:
     if col not in df_final.columns:
         df_final[col] = 0
 
-# ---------------------------
+
 # Cargar modelo RF (fallback: descarga si no existe)
-# ---------------------------
 if not os.path.exists(os.path.join(ruta_script, "model.pkl")):
     # Si necesitas cambiar file_id por el real, cámbialo aquí.
     file_id = "15ImIkHF8yTPiADAqlWRzZM_hMoBLvX99" 
@@ -142,9 +140,7 @@ else:
     print("model.pkl no encontrado. El modelo RF no estará disponible (se usará Gompertz o 0).")
     best_model = None
 
-# ---------------------------
 # Columnas usadas por el modelo RF
-# ---------------------------
 X = ['Clasificacion_Crema', 'Clasificacion_Cuidado cabello',
      'Clasificacion_Jabon', 'Clasificacion_Rastrillos',
      'Clasificacion_Tratamiento capilar', 'Grps', 'INVENTARIO_TOTAL',
@@ -159,16 +155,14 @@ df = df_final.copy()
 
 pronosticos = []
 
-# ---------------------------
 # Loop principal por SKU
-# ---------------------------
 for sku, grupo in df.groupby("SKU"):
     grupo = grupo.sort_values("SemNumero").reset_index(drop=True)
 
     # Ajustar Gompertz usando historial del SKU
     params_gompertz = ajustar_gompertz(grupo)
 
-    # -------------- Caso: solo 1 registro histórico --------------
+    # Caso: solo 1 registro histórico 
     if len(grupo) == 1:
         registro_actual = grupo.iloc[0:1].copy()
         sem_numero_base = int(registro_actual['SemNumero'].iloc[0])
@@ -184,7 +178,7 @@ for sku, grupo in df.groupby("SKU"):
             # actualizar semnumero
             registro_procesado['SemNumero'] = sem_numero_base + i + 1
 
-            # --- Predicción RF ---
+            #Predicción RF
             try:
                 if best_model is not None:
                     pred_rf = float(best_model.predict(registro_procesado[X])[0])
@@ -194,7 +188,7 @@ for sku, grupo in df.groupby("SKU"):
                 # print(f"Error predict RF SKU={sku}: {e}")
                 pred_rf = 0.0
 
-            # --- Predicción Gompertz ---
+            # Predicción Gompertz 
             semana = int(registro_procesado['SemNumero'].iloc[0])
             if params_gompertz is not None:
                 try:
@@ -204,7 +198,7 @@ for sku, grupo in df.groupby("SKU"):
             else:
                 pred_g = pred_rf
 
-            # --- Mezcla dinámica ---
+            # Mezcla dinámica
             pg, pr = ponderar_modelos(semana)
             y_pred = float(pg * pred_g + pr * pred_rf)
 
@@ -234,12 +228,10 @@ for sku, grupo in df.groupby("SKU"):
             registro_actual['SemNumero'] = registro_actual['SemNumero'] + 1
 
     else:
-        # -------------- Caso: historial existente (>=2 registros) --------------
+        #Caso: historial existente (>=2 registros)
         normales = grupo.iloc[:-1].copy()
         #ultimos = grupo.iloc[-1:].copy().to_frame().T.reset_index(drop=True)
         ultimos = grupo.iloc[-1:].copy().reset_index(drop=True)
-
-
         # Para las filas históricas (normales) calculamos predicciones RF y Gompertz (si aplica)
         # Pred RF vectorizado (si model disponible)
         try:
@@ -307,7 +299,7 @@ for sku, grupo in df.groupby("SKU"):
             registro_procesado['SemNumero'] = sem_numero_base + i + 1
             semana = int(registro_procesado['SemNumero'].iloc[0])
 
-            # --- Predicción RF ---
+            # Predicción RF
             try:
                 if best_model is not None:
                     pred_rf = float(best_model.predict(registro_procesado[X])[0])
@@ -317,7 +309,7 @@ for sku, grupo in df.groupby("SKU"):
                 # print(f"Error predict RF SKU={sku}: {e}")
                 pred_rf = 0.0
 
-            # --- Predicción Gompertz ---
+            #Predicción Gompertz
             if params_gompertz is not None:
                 try:
                     pred_g = float(gompertz_reparam(semana, *params_gompertz))
@@ -326,7 +318,7 @@ for sku, grupo in df.groupby("SKU"):
             else:
                 pred_g = pred_rf
 
-            # --- Mezcla dinámica ---
+            #Mezcla dinámica
             pg, pr = ponderar_modelos(semana)
             y_pred = float(pg * pred_g + pr * pred_rf)
 
@@ -355,19 +347,11 @@ for sku, grupo in df.groupby("SKU"):
             registro_actual['SELLOUT_SP'] = y_pred
             registro_actual['SemNumero'] = registro_actual['SemNumero'] + 1
 
-# ---------------------------
 # Exportar resultados
-# ---------------------------
 if len(pronosticos) == 0:
     df_pronostico_total = pd.DataFrame()
 else:
-    # Algunos elementos de pronosticos pueden ser DataFrames (filas). Concatenar en un df final.
     df_pronostico_total = pd.concat(pronosticos, ignore_index=True, sort=False)
-
-# Asegurar nombres de columnas esperadas por Streamlit
-# Renombrar la columna creada para consistencia con tu código previo si hace falta
-# (tu código previo esperaba 'Predicción Unidades Desplazadas' exactamente)
 doc_final = os.path.join(ruta_script, "PRONOSTICO_PRUEBAS.xlsx")
 df_pronostico_total.to_excel(doc_final, index=False)
 
-#print(f'Resultados guardados en {doc_final}')
